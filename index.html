@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Морзе">
+<meta name="theme-color" content="#0c1114">
+<meta name="description" content="Тренажер азбуки Морзе українською: українська абетка й латиниця, метод Коха, перевірка передачі, позивні та Q-коди.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Морзе — тренажер</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0c1114;color:#e6edf1;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+body{display:flex;flex-direction:column}
+header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:6px 12px;background:#121a1f;border-bottom:1px solid #22303a}
+.brand{font-size:22px;font-weight:700;color:#ffb000;margin-right:10px;white-space:nowrap}
+.hl{display:flex;align-items:center;flex-wrap:wrap}
+.alpha{display:flex;align-items:center;margin-right:8px;background:#0f171c;border:1px solid #2c3d49;border-radius:12px;padding:2px 4px}
+.alpha span{color:#9fb0ba;font-size:15px;margin:0 4px}
+.alpha button{margin:2px;padding:7px 12px;font-size:16px}
+nav{display:flex;flex-wrap:wrap}
+main{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:10px 12px 20px}
+.page{display:none;max-width:1180px;margin:0 auto}
+.page.on{display:block}
+button{font:inherit;font-size:18px;color:#e6edf1;background:#1d2a33;border:1px solid #2c3d49;border-radius:10px;padding:10px 16px;margin:4px;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+button:active{background:#2a3b47}
+button.pri{background:#1f6f4a;border-color:#2b9a66}
+button.on{background:#ffb000;color:#111;border-color:#ffb000}
+nav button{font-size:17px;padding:9px 13px}
+.row{display:flex;align-items:center;flex-wrap:wrap;margin:4px 0}
+.between{justify-content:space-between}
+.center{justify-content:center}
+.stats{font-size:18px;color:#b8c6cf;margin:4px}
+.stats b{color:#ffb000}
+.stage{background:#10181d;border:1px solid #22303a;border-radius:14px;padding:12px;text-align:center;margin:6px 0}
+.big{font-size:110px;line-height:1.05;font-weight:700;color:#ffb000;font-family:Consolas,Menlo,"Courier New",monospace;min-height:116px}
+.pat{font-size:32px;letter-spacing:4px;color:#9fd8ff;min-height:40px}
+.msg{font-size:20px;color:#b8c6cf;min-height:28px;margin-top:4px}
+.stage.ok .big{color:#3ddc84}
+.stage.bad .big{color:#ff5a5a}
+.g{color:#3ddc84}.r{color:#ff5a5a}
+.pad{display:flex;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.chip{width:76px;height:70px;font-size:30px;font-weight:700;position:relative;padding:0 0 12px;margin:5px;border-width:2px}
+.chip small{position:absolute;bottom:4px;left:0;right:0;font-size:12px;font-weight:400;color:#9fb0ba}
+.chip.cg{border-color:#3ddc84}.chip.cy{border-color:#ffb000}.chip.cr{border-color:#ff5a5a}
+.chip.new:after{content:"нова";position:absolute;top:-9px;right:-6px;background:#ffb000;color:#111;font-size:11px;padding:1px 5px;border-radius:6px}
+.chip.hit{background:#1f6f4a}.chip.miss{background:#7a2727}
+.banner{background:#2b2410;border:1px solid #ffb000;border-radius:12px;padding:8px 12px;font-size:19px;margin:6px 0;display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+.hidden{display:none!important}
+input,select{font:inherit;font-size:21px;background:#0f171c;color:#e6edf1;border:1px solid #2c3d49;border-radius:10px;padding:9px 12px;margin:4px}
+#wIn,#tIn{flex:1;min-width:180px}
+#wIn{text-transform:uppercase;font-family:Consolas,Menlo,monospace;letter-spacing:3px}
+.big2{font-size:60px;font-family:Consolas,Menlo,monospace;letter-spacing:6px;min-height:72px;color:#ffb000;word-break:break-all}
+.big2 span.r{text-decoration:underline}
+.keyarea{display:flex;margin:6px 0}
+.key{flex:1;height:230px;border-radius:20px;background:#1d2a33;border:2px solid #2c3d49;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:54px;font-weight:700;-webkit-user-select:none;user-select:none;touch-action:none;-webkit-touch-callout:none;margin:0 5px;cursor:pointer}
+.key.huge{font-size:110px;line-height:1}
+.key small{font-size:14px;font-weight:400;color:#9fb0ba;margin-top:6px}
+.key.down{background:#ffb000;color:#111;border-color:#ffb000}
+.key.down small{color:#333}
+.ktarget{font-family:Consolas,Menlo,monospace;font-size:66px;letter-spacing:8px;font-weight:700;color:#5d6d78;min-height:78px;line-height:1.1}
+.ktarget .d{color:#3ddc84}.ktarget .n{color:#ffb000;border-bottom:4px solid #ffb000}
+.hintp{font-size:36px;color:#9fd8ff;letter-spacing:4px;min-height:44px}
+.decoded{font-family:Consolas,Menlo,monospace;font-size:30px;min-height:40px;word-break:break-all;color:#e6edf1}
+.decoded .lbl{font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:16px;color:#9fb0ba;margin-right:8px}
+.cur{color:#9fd8ff;margin-left:8px;letter-spacing:2px;font-size:38px}
+.grid{display:flex;flex-wrap:wrap}
+.cell{width:104px;margin:4px;padding:7px 3px;background:#151f26;border:1px solid #26353f;border-radius:10px;text-align:center;cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.cell b{display:block;font-size:27px;color:#ffb000}
+.cell span{font-size:17px;letter-spacing:1px;color:#9fd8ff}
+.cell i{display:block;font-size:11px;color:#9fb0ba;font-style:normal;margin-top:2px}
+.cell.on{background:#24411f;border-color:#3ddc84}
+h3{margin:12px 4px 4px;color:#9fb0ba;font-weight:600;font-size:15px;text-transform:uppercase;letter-spacing:1px}
+.set label{display:flex;align-items:center;flex-wrap:wrap;font-size:19px;margin:12px 0}
+.set label span{width:260px}
+.set input[type=range]{flex:1;min-width:200px;margin:0 12px}
+.set b{width:140px;color:#ffb000}
+.note{color:#9fb0ba;font-size:15px;line-height:1.45}
+.chk{font-size:18px;margin:4px 8px;display:flex;align-items:center}
+.chk input{width:22px;height:22px;margin-right:6px}
+select.sm{font-size:17px;padding:7px 10px}
+@media (max-width:760px){
+ .big{font-size:80px;min-height:86px}.chip{width:60px;height:58px;font-size:24px}
+ .key{height:180px}.key.huge{font-size:80px}.big2{font-size:40px}.ktarget{font-size:48px}.set label span{width:100%}
+}
+</style>
+</head>
+<body>
+<header>
+ <div class="hl">
+  <div class="brand">−·−· Морзе</div>
+  <div class="alpha" id="alpha"><span>Абетка:</span><button data-a="cyr">Українська</button><button data-a="lat">Латиниця</button></div>
+ </div>
+ <nav id="tabs">
+  <button data-tab="learn">Вчити</button>
+  <button data-tab="key">Перевір себе</button>
+  <button data-tab="words">Слова й позивні</button>
+  <button data-tab="table">Таблиця</button>
+  <button data-tab="set">⚙</button>
+  <button id="shareBtn" class="hidden" title="Поділитися посиланням">📤 Поділитися</button>
+ </nav>
+</header>
+<main>
+
+<!-- ============ ВЧИТИ (прийом на слух, метод Коха) ============ -->
+<section id="p-learn" class="page">
+ <div class="row between">
+  <div class="row">
+   <span class="stats">Урок <b id="lvlN">1</b> · вивчаю <b id="lvlC">2</b> з <b id="lvlT">41</b></span>
+   <button id="lvlDown">−</button><button id="lvlUp">+</button>
+  </div>
+  <span class="stats">Точність (останні 50): <b id="lAcc">—</b> · сьогодні: <b id="lCount">0/0</b></span>
+ </div>
+ <div id="lUp" class="banner hidden">90%+ — час додати новий символ&nbsp;<b id="lNext"></b>&nbsp;<button id="lUpBtn" class="pri">Додати</button></div>
+ <div id="lStage" class="stage">
+  <div id="lBig" class="big">?</div>
+  <div id="lPat" class="pat"></div>
+  <div id="lMsg" class="msg"></div>
+ </div>
+ <div class="row center">
+  <button id="lStart" class="pri">▶ Старт</button>
+  <button id="lRepeat">🔁 Повтор</button>
+  <button id="lIdk">Не знаю</button>
+ </div>
+ <div id="lPad" class="pad"></div>
+ <p class="note">Тут вчитеся <b>чути</b>: програма грає символ — ви тиснете, який це. Спершу 2 символи, коли точність 90%+ — додається новий. Рамка: зелена ≥90%, жовта ≥70%, червона — треба ще.
+ Клавіатура: символ — відповідь, <b>Пробіл</b> — повтор, <b>Enter</b> — старт/пауза. <span id="lCyrNote"></span></p>
+</section>
+
+<!-- ============ ПЕРЕВІР СЕБЕ (передача) ============ -->
+<section id="p-key" class="page">
+ <div class="row between">
+  <div class="row" id="kMode">
+   <button data-km="compose">• і — кнопками</button>
+   <button data-km="straight">Прямий ключ</button>
+   <button data-km="iambic">Ямбічний</button>
+  </div>
+  <div class="row">
+   <select id="kSet" class="sm">
+    <option value="lvl">Літери, які вчу</option>
+    <option value="all">Усі літери</option>
+    <option value="words">Короткі слова</option>
+   </select>
+   <label class="chk"><input type="checkbox" id="kHint" checked>Підказка</label>
+   <label class="chk" id="kSlowL"><input type="checkbox" id="kSlow" checked>Без поспіху</label>
+  </div>
+ </div>
+ <div class="stage">
+  <div class="msg" style="margin:0">Передайте:</div>
+  <div id="kTarget" class="ktarget"></div>
+  <div id="kTargetPat" class="hintp"></div>
+  <div id="kRes" class="msg"></div>
+  <div class="decoded"><span class="lbl">ви передали:</span><span id="kText"></span><span id="kCur" class="cur"></span></div>
+  <div class="stats">Вірно: <b id="kScore">0 з 0</b> <span id="kWpmBox">· темп: <b id="kWpm">—</b></span></div>
+ </div>
+ <div id="kaCompose">
+  <div class="keyarea">
+   <div id="cDit" class="key huge">•<small>точка · Z або ←</small></div>
+   <div id="cDah" class="key huge">—<small>тире · X або →</small></div>
+  </div>
+  <div class="row center"><button id="cDel">⌫ Стерти</button><button id="cOk" class="pri">✓ Готово</button></div>
+ </div>
+ <div id="kaStraight" class="keyarea"><div id="kStraight" class="key">КЛЮЧ<small>або Пробіл · коротко — точка, довго — тире</small></div></div>
+ <div id="kaIambic" class="keyarea">
+  <div id="kDit" class="key">• ТОЧКА<small>Z, ← або [</small></div>
+  <div id="kDah" class="key">— ТИРЕ<small>X, → або ]</small></div>
+ </div>
+ <div class="row center"><button id="kNext">Інше завдання</button><button id="kClear">Очистити</button></div>
+ <p class="note" id="kNote"></p>
+</section>
+
+<!-- ============ СЛОВА / ПОЗИВНІ / Q-КОДИ ============ -->
+<section id="p-words" class="page">
+ <div class="row between">
+  <select id="wCat">
+   <optgroup label="Українською"><option value="uaw">Українські слова</option></optgroup>
+   <optgroup label="З того, що вчу"><option value="grp">Групи з вивчених символів</option><option value="num">Цифри</option></optgroup>
+   <optgroup label="Для ефіру (латиницею)">
+    <option value="ua">Позивні України</option><option value="dx">Позивні світу</option>
+    <option value="q">Q-коди і скорочення</option><option value="en">Англійські слова</option>
+   </optgroup>
+  </select>
+  <span class="stats">Вірно: <b id="wScore">0/0</b></span>
+ </div>
+ <div class="stage">
+  <div id="wShow" class="big2">—</div>
+  <div id="wHint" class="msg">Натисніть «Грати», послухайте і введіть, що почули.</div>
+  <div id="wMeaning" class="msg"></div>
+ </div>
+ <div class="row">
+  <input id="wIn" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="що почули">
+  <button id="wCheck" class="pri">Перевірити</button>
+ </div>
+ <div class="row center">
+  <button id="wPlay" class="pri">▶ Грати / Далі</button>
+  <button id="wRepeat">🔁 Повтор</button>
+  <button id="wReveal">Показати</button>
+ </div>
+ <p class="note"><b>Enter</b> — перевірити, ще раз <b>Enter</b> — наступне. <b>Пробіл</b> — повтор. Позивні й Q-коди в ефірі завжди латиницею — це міжнародна «мова» радіоаматорів.</p>
+</section>
+
+<!-- ============ ТАБЛИЦЯ ============ -->
+<section id="p-table" class="page">
+ <div class="row">
+  <input id="tIn" autocomplete="off" spellcheck="false" placeholder="Введіть текст і послухайте">
+  <button id="tPlay" class="pri">▶</button><button id="tStop">■</button>
+ </div>
+ <div id="tPat" class="hintp" style="font-size:24px"></div>
+ <h3 id="tH1">Літери</h3><div id="tLetters" class="grid"></div>
+ <h3>Цифри</h3><div id="tDigits" class="grid"></div>
+ <h3>Розділові знаки</h3><div id="tPunct" class="grid"></div>
+ <h3>Службові сигнали (передаються злитно)</h3><div id="tPro" class="grid"></div>
+ <h3 id="tH2">Інша абетка</h3><div id="tOther" class="grid"></div>
+ <p class="note">Радіоаматори в ефірі працюють латиницею. Для Ї та Ґ немає єдиного коду: Ї частіше передають як • — — — • або як І; тому в тренуваннях їх немає.</p>
+</section>
+
+<!-- ============ НАЛАШТУВАННЯ ============ -->
+<section id="p-set" class="page set">
+ <label><span>Швидкість знаків</span><input type="range" id="sWpm" min="5" max="40" step="1"><b id="sWpmV"></b></label>
+ <label><span>Загальна швидкість (паузи, Farnsworth)</span><input type="range" id="sEff" min="3" max="40" step="1"><b id="sEffV"></b></label>
+ <label><span>Тон</span><input type="range" id="sTone" min="300" max="1000" step="10"><b id="sToneV"></b></label>
+ <label><span>Гучність</span><input type="range" id="sVol" min="0" max="100" step="1"><b id="sVolV"></b></label>
+ <div class="row"><button id="sTest" class="pri">▶ Перевірити звук</button><button id="sReset">Скинути прогрес цієї абетки</button></div>
+ <p class="note">Порада: знаки — 20 WPM, загальна — 10–12 WPM. Так кожна літера звучить «цілою мелодією», а час на роздуми дають паузи. Коли легко — піднімайте загальну швидкість.
+ Прогрес для української і латиниці окремий. Усе зберігається на цьому пристрої.</p>
+</section>
+
+</main>
+<script>
+(function () {
+'use strict';
+
+/* ---------- коди ---------- */
+var MORSE = {A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',
+ N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',
+ '0':'-----','1':'.----','2':'..---','3':'...--','4':'....-','5':'.....','6':'-....','7':'--...','8':'---..','9':'----.',
+ '.':'.-.-.-',',':'--..--','?':'..--..','/':'-..-.','=':'-...-','-':'-....-',"'":'.----.','(':'-.--.',')':'-.--.-',
+ ':':'---...',';':'-.-.-.','"':'.-..-.','@':'.--.-.','+':'.-.-.','!':'-.-.--'};
+var PRO = [['AR','.-.-.','кінець повідомлення'],['SK','...-.-','кінець зв’язку'],['BT','-...-','розділ, пауза'],
+ ['KN','-.--.','прийом — лише вказана станція'],['AS','.-...','зачекайте'],['KA','-.-.-','початок передачі'],
+ ['HH','........','помилка, виправляю'],['SOS','...---...','лихо']];
+var CYR = [['А','.-'],['Б','-...'],['В','.--'],['Г','--.'],['Д','-..'],['Е','.'],['Є','..-..'],['Ж','...-'],['З','--..'],
+ ['И','-.--'],['І','..'],['Ї','.---.'],['Й','.---'],['К','-.-'],['Л','.-..'],['М','--'],['Н','-.'],['О','---'],['П','.--.'],
+ ['Р','.-.'],['С','...'],['Т','-'],['У','..-'],['Ф','..-.'],['Х','....'],['Ц','-.-.'],['Ч','---.'],['Ш','----'],['Щ','--.-'],
+ ['Ь','-..-'],['Ю','..--'],['Я','.-.-']];
+var REV_LAT = {}, REV_CYR = {}, PROMAP = {}, CYRMAP = {}, key_;
+for (key_ in MORSE) if (!REV_LAT[MORSE[key_]]) REV_LAT[MORSE[key_]] = key_;
+PRO.forEach(function (p) { PROMAP[p[0]] = p[1]; if (!REV_LAT[p[1]]) REV_LAT[p[1]] = '<' + p[0] + '>'; });
+CYR.forEach(function (c) { CYRMAP[c[0]] = c[1]; REV_CYR[c[1]] = c[0]; });
+'0123456789.,?'.split('').forEach(function (d) { if (!REV_CYR[MORSE[d]]) REV_CYR[MORSE[d]] = d; });
+
+var ALPHA = {
+  lat: {koch: 'KMURESNAPTLWI.JZ=FOY,VG5/Q92H38B?47C1D60X'.split(''), order: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?/=',
+        letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', rev: REV_LAT},
+  cyr: {koch: 'КМУРЕСНАПТЛВІЙЗФОИЖГЧ5Щ92ХШ38БЮ47ЦЯ1Д60ЬЄ'.split(''), order: 'АБВГДЕЄЖЗИІЙКЛМНОПРСТУФХЦЧШЩЬЮЯ0123456789',
+        letters: 'АБВГДЕЄЖЗИІЙКЛМНОПРСТУФХЦЧШЩЬЮЯ', rev: REV_CYR}
+};
+var CYR2LAT = {'А':'A','В':'B','Е':'E','К':'K','М':'M','Н':'H','О':'O','Р':'P','С':'C','Т':'T','Х':'X','І':'I','У':'Y'};
+var LAT2CYR = {}; for (key_ in CYR2LAT) LAT2CYR[CYR2LAT[key_]] = key_;
+/* фізичні клавіші → українська розкладка (працює, навіть якщо ввімкнена англійська) */
+var UA_KEYS = {KeyQ:'Й',KeyW:'Ц',KeyE:'У',KeyR:'К',KeyT:'Е',KeyY:'Н',KeyU:'Г',KeyI:'Ш',KeyO:'Щ',KeyP:'З',BracketLeft:'Х',
+ KeyA:'Ф',KeyS:'І',KeyD:'В',KeyF:'А',KeyG:'П',KeyH:'Р',KeyJ:'О',KeyK:'Л',KeyL:'Д',Semicolon:'Ж',Quote:'Є',
+ KeyZ:'Я',KeyX:'Ч',KeyC:'С',KeyV:'М',KeyB:'И',KeyN:'Т',KeyM:'Ь',Comma:'Б',Period:'Ю'};
+
+var QL = [
+ ['CQ','загальний виклик — «усім, хто чує»'],['DE','«від» — перед своїм позивним'],['K','прийом, передаю слово'],
+ ['KN','прийом — тільки для станції, з якою працюю'],['R','прийняв, зрозумів'],['RR','все прийнято'],['TNX','дякую'],
+ ['TU','дякую (коротко)'],['73','найкращі побажання — прощання'],['88','обійми й поцілунки'],['FB','чудово'],
+ ['OM','друже (про оператора)'],['YL','дівчина-оператор'],['UR','ваш'],['RST','рапорт: розбірливість, сила, тон'],
+ ['599','рапорт: чудовий сигнал'],['5NN','599 скорочено'],['NAME','ім’я'],['OP','оператор'],['QTH','моє місцезнаходження'],
+ ['QRZ','хто мене кличе?'],['QSL','підтверджую прийом'],['QSO','радіозв’язок'],['QRM','завади від інших станцій'],
+ ['QRN','атмосферні завади'],['QSB','сигнал завмирає'],['QRP','мала потужність'],['QRO','велика потужність'],
+ ['QSY','переходжу на іншу частоту'],['QRT','припиняю роботу'],['QRV','я готовий'],['QRS','передавайте повільніше'],
+ ['QRQ','передавайте швидше'],['QRX','зачекайте'],['QRL','частота зайнята?'],['WX','погода'],['ANT','антена'],
+ ['RIG','апаратура, трансивер'],['PWR','потужність'],['PSE','будь ласка'],['AGN','ще раз'],['HW','як чуєте?'],
+ ['CPY','приймати, прийняв'],['ES','і (and)'],['GM','доброго ранку'],['GA','доброго дня'],['GE','доброго вечора'],
+ ['GL','успіхів'],['CUL','до зустрічі'],['HR','тут'],['SRI','вибачте'],['ABT','приблизно'],['DR','дорогий (звертання)'],
+ ['WKD','працював зі станцією'],['NR','номер'],['RPT','повторіть'],['TEST','контест, змагання'],['BK','перебиваю, передаю вам']];
+var EN = ('THE AND YOU THAT WAS FOR ARE WITH HIS THEY THIS HAVE FROM ONE HAD WORD BUT NOT WHAT ALL WERE WHEN WE THERE CAN ' +
+ 'YOUR WHICH SAID IF DO WILL EACH ABOUT HOW UP OUT THEM THEN SHE MANY SOME SO THESE WOULD OTHER INTO HAS MORE HER TWO LIKE ' +
+ 'HIM SEE TIME COULD NO MAKE THAN FIRST BEEN WHO NOW PEOPLE MY MADE OVER DID DOWN ONLY WAY FIND USE MAY WATER LONG LITTLE ' +
+ 'VERY AFTER JUST WHERE MOST KNOW RADIO POWER SIGNAL BAND CALL COPY GOOD NIGHT DAY WIND RAIN SNOW COLD WARM HOME WORK ' +
+ 'KEY TONE SPEED CODE MORSE HELLO THANKS STATION REPORT WEATHER').split(' ');
+var UAW = ('МАМА ТАТО ДІМ ХЛІБ ВОДА НЕБО СОНЦЕ ЛЬВІВ РАДІО АНТЕНА СИГНАЛ ПРИЙОМ ЧАСТОТА ЕФІР ДРУГ СЛАВА ГЕРОЯМ ВОЛЯ МИР ' +
+ 'ДОБРО ЛІС ПОЛЕ РІЧКА ВІТЕР ДОЩ СНІГ ЗИМА ЛІТО ОСІНЬ ВЕСНА РАНОК ВЕЧІР НІЧ ДЕНЬ ТИША ЗОРЯ МІСЯЦЬ ЗЕМЛЯ КОЗАК ПІСНЯ ' +
+ 'КАВА ЧАЙ СІЛЬ БДЖОЛА МЕД ВУЛИК ПАСІКА КВІТКА ДЕРЕВО ВОГОНЬ ШЛЯХ ДОРОГА ПРИВІТ ДЯКУЮ ТАК НІ ДОБРЕ ЧЕКАЮ ПРИЙНЯВ ' +
+ 'ПОВТОРИ ЗРОЗУМІВ ЄДНІСТЬ').split(' ');
+var UA_PRE = ['UR','UT','UX','US','UY','UZ','UW','UV','EM','EN','EO'];
+var DX_PRE = ['K','W','N','AA','KD','G','M','2E','DL','DK','DJ','F','I','IK','EA','SP','SQ','OK','OM','HA','YO','LY','YL',
+ 'ES','OH','SM','LA','OZ','PA','ON','JA','VK','VE','PY','LU','ZS','4X','TA','SV','9A','S5','LZ','ER','4L','EI','CT','HB9','OE'];
+
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function rnd(n) { return Math.floor(Math.random() * n); }
+function rp(a) { return a[rnd(a.length)]; }
+function pat(p) { return p ? p.split('').map(function (c) { return c === '.' ? '•' : '—'; }).join(' ') : ''; }
+function avg(a) { if (!a || !a.length) return null; var s = 0; for (var i = 0; i < a.length; i++) s += a[i]; return s / a.length; }
+function codeOf(ch) { return MORSE[ch] || CYRMAP[ch] || ''; }
+function isCyr(s) { return /[А-ЯЄІЇҐ]/.test(s); }
+
+function tokens(text) {
+  var out = [], s = String(text).toUpperCase(), i = 0;
+  while (i < s.length) {
+    var c = s.charAt(i);
+    if (c === '<') {
+      var j = s.indexOf('>', i);
+      if (j > i && PROMAP[s.slice(i + 1, j)]) { out.push({c: s.slice(i, j + 1), p: PROMAP[s.slice(i + 1, j)]}); i = j + 1; continue; }
+    }
+    if (/\s/.test(c)) { if (out.length && out[out.length - 1].c !== ' ') out.push({c: ' '}); }
+    else if (codeOf(c)) out.push({c: c, p: codeOf(c)});
+    i++;
+  }
+  while (out.length && out[out.length - 1].c === ' ') out.pop();
+  return out;
+}
+function patternOf(text) { return tokens(text).map(function (t) { return t.c === ' ' ? '/' : pat(t.p); }).join('   '); }
+
+/* ---------- збереження ---------- */
+var LS = 'morse-ua-v1';
+var DEF = {wpm: 20, eff: 12, tone: 600, vol: 60, key: 'compose'};
+function freshProg() { return {level: 2, hist: {}, recent: []}; }
+var S = (function () {
+  var s = null;
+  try { s = JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) {}
+  if (s && s.v === 1) {               // стара версія: усе було латиницею
+    s = {v: 2, set: s.set, alpha: 'cyr', tab: 'learn', cat: 'uaw',
+         prog: {lat: {level: s.level || 2, hist: s.hist || {}, recent: s.recent || []}, cyr: freshProg()}};
+    s.set.key = 'compose';
+  }
+  if (!s || s.v !== 2) s = {v: 2, set: {}, alpha: 'cyr', tab: 'learn', cat: 'uaw', prog: {lat: freshProg(), cyr: freshProg()}};
+  for (var x in DEF) if (s.set[x] === undefined) s.set[x] = DEF[x];
+  return s;
+})();
+function save() { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {} }
+function A() { return ALPHA[S.alpha]; }
+function P() { return S.prog[S.alpha]; }
+function rev(p) { return A().rev[p] || null; }
+
+/* ---------- звук ---------- */
+var AC = window.AudioContext || window.webkitAudioContext;
+var ctx = null, out = null, keyOsc = null, keyGain = null, playOsc = null, playTimer = null;
+function audio() {
+  if (!AC) return null;
+  if (!ctx) {
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+    try { ctx = new AC({latencyHint: 'interactive'}); } catch (e) { ctx = new AC(); }
+    out = ctx.createGain(); out.connect(ctx.destination);
+    keyGain = ctx.createGain(); keyGain.gain.value = 0; keyGain.connect(out);
+    keyOsc = ctx.createOscillator(); keyOsc.type = 'sine'; keyOsc.connect(keyGain); keyOsc.start();
+  }
+  if (ctx.state === 'suspended' && ctx.resume) ctx.resume();
+  out.gain.value = S.set.vol / 100;
+  keyOsc.frequency.value = S.set.tone;
+  return ctx;
+}
+function timing() {
+  var c = S.set.wpm, s = Math.min(S.set.eff, c), dit = 1.2 / c, cg = 3 * dit, wg = 7 * dit;
+  if (s < c) { var ta = (60 * c - 37.2 * s) / (s * c); cg = 3 * ta / 19; wg = 7 * ta / 19; }
+  return {dit: dit, cg: cg, wg: wg};
+}
+function stopPlay() {
+  clearTimeout(playTimer); playTimer = null;
+  if (playOsc) { try { playOsc.stop(0); } catch (e) {} try { playOsc.disconnect(); } catch (e) {} playOsc = null; }
+}
+function play(text, done) {
+  stopPlay();
+  var c = audio(); if (!c) { if (done) done(); return; }
+  var tm = timing(), dit = tm.dit, R = 0.005;
+  var g = c.createGain(); g.gain.value = 0; g.connect(out);
+  var o = c.createOscillator(); o.type = 'sine'; o.frequency.value = S.set.tone; o.connect(g);
+  var t0 = c.currentTime + 0.08, t = t0;
+  tokens(text).forEach(function (tk) {
+    if (tk.c === ' ') { t += tm.wg - tm.cg; return; }
+    for (var j = 0; j < tk.p.length; j++) {
+      var d = tk.p.charAt(j) === '.' ? dit : 3 * dit;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(1, t + R);
+      g.gain.setValueAtTime(1, t + d - R); g.gain.linearRampToValueAtTime(0, t + d);
+      t += d; if (j < tk.p.length - 1) t += dit;
+    }
+    t += tm.cg;
+  });
+  o.start(t0); o.stop(t + 0.05);
+  playOsc = o;
+  playTimer = setTimeout(function () { playOsc = null; playTimer = null; if (done) done(); }, Math.max(0, (t - tm.cg - c.currentTime) * 1000 + 60));
+}
+function keyTone(on) {
+  var c = audio(); if (!c) return;
+  var t = c.currentTime;
+  keyGain.gain.cancelScheduledValues(t);
+  keyGain.gain.setTargetAtTime(on ? 1 : 0, t, 0.004);
+}
+function beep(dur) {               // один тон заданої довжини (с) через «ключ»
+  var c = audio(); if (!c) return;
+  var t = c.currentTime + 0.01, g = keyGain.gain;
+  g.cancelScheduledValues(t); g.setValueAtTime(0, t); g.linearRampToValueAtTime(1, t + 0.005);
+  g.setValueAtTime(1, t + dur - 0.005); g.linearRampToValueAtTime(0, t + dur);
+}
+
+/* ---------- вкладки й абетка ---------- */
+function showTab(t) {
+  stopAll();
+  S.tab = t; save();
+  [].forEach.call(document.querySelectorAll('#tabs button'), function (b) { b.classList.toggle('on', b.getAttribute('data-tab') === t); });
+  [].forEach.call(document.querySelectorAll('.page'), function (p) { p.classList.toggle('on', p.id === 'p-' + t); });
+  if (t === 'learn') { lRender(); stage('', '?', '', 'Натисніть «Старт», слухайте символ і тисніть його нижче.'); }
+  if (t === 'key') kRender();
+  if (t === 'set') sRender();
+}
+function setAlpha(a) {
+  stopAll();
+  S.alpha = a; save();
+  [].forEach.call(document.querySelectorAll('#alpha button'), function (b) { b.classList.toggle('on', b.getAttribute('data-a') === a); });
+  buildTable();
+  K.target = ''; W.item = null; W.done = true; $('wShow').textContent = '—';
+  if (a === 'cyr' && ['ua', 'dx', 'q', 'en'].indexOf(S.cat) >= 0) { S.cat = 'uaw'; $('wCat').value = 'uaw'; }
+  if (a === 'lat' && S.cat === 'uaw') { S.cat = 'ua'; $('wCat').value = 'ua'; }
+  showTab(S.tab);
+}
+function stopAll() { lStop(); stopPlay(); kRelease(); }
+$('tabs').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  audio(); showTab(b.getAttribute('data-tab'));
+});
+$('alpha').addEventListener('click', function (e) {
+  var b = e.target.closest('button[data-a]'); if (!b) return;
+  audio(); setAlpha(b.getAttribute('data-a'));
+});
+
+/* ---------- ВЧИТИ ---------- */
+var L = {run: false, cur: null, wait: false, last: null, same: 0, n: 0, ok: 0, timer: null};
+function lvlChars() { return A().koch.slice(0, P().level); }
+function pick() {
+  var cs = lvlChars(), newest = cs[cs.length - 1], ws = [], sum = 0, i;
+  for (i = 0; i < cs.length; i++) {
+    var a = avg(P().hist[cs[i]]);
+    var w = 1 + (a === null ? 2 : (1 - a) * 6) + (cs[i] === newest ? 1.5 : 0);
+    if (cs[i] === L.last && L.same >= 1) w *= 0.25;
+    ws.push(w); sum += w;
+  }
+  var r = Math.random() * sum;
+  for (i = 0; i < cs.length - 1; i++) { r -= ws[i]; if (r <= 0) break; }
+  var ch = cs[i];
+  L.same = ch === L.last ? L.same + 1 : 0; L.last = ch;
+  return ch;
+}
+function stage(cls, big, p, msg) {
+  $('lStage').className = 'stage' + (cls ? ' ' + cls : '');
+  $('lBig').textContent = big; $('lPat').textContent = p; $('lMsg').textContent = msg;
+}
+function lRender() {
+  var pr = P(), koch = A().koch;
+  $('lvlN').textContent = pr.level - 1; $('lvlC').textContent = pr.level; $('lvlT').textContent = koch.length;
+  var a = avg(pr.recent);
+  $('lAcc').textContent = a === null ? '—' : Math.round(a * 100) + '%';
+  $('lCount').textContent = L.ok + '/' + L.n;
+  var newest = koch[pr.level - 1], order = A().order;
+  var cs = lvlChars().slice().sort(function (x, y) { return order.indexOf(x) - order.indexOf(y); });
+  var html = '';
+  cs.forEach(function (c) {
+    var h = avg(pr.hist[c]);
+    var cls = 'chip' + (h === null ? '' : h >= 0.9 ? ' cg' : h >= 0.7 ? ' cy' : ' cr') + (c === newest ? ' new' : '');
+    html += '<button class="' + cls + '" data-c="' + esc(c) + '">' + esc(c) + '<small>' + (h === null ? '' : Math.round(h * 100) + '%') + '</small></button>';
+  });
+  $('lPad').innerHTML = html;
+  var can = pr.level < koch.length && pr.recent.length >= 30 && avg(pr.recent) >= 0.9;
+  $('lUp').classList.toggle('hidden', !can);
+  if (can) $('lNext').textContent = koch[pr.level] + '  ' + pat(codeOf(koch[pr.level]));
+  $('lCyrNote').textContent = S.alpha === 'cyr' ? 'Українські літери можна вводити з будь-якою розкладкою — працюють клавіші, де вони намальовані.' : '';
+}
+function rec(c, ok) {
+  var pr = P(), h = pr.hist[c] || []; h.push(ok ? 1 : 0); if (h.length > 20) h.shift(); pr.hist[c] = h;
+  pr.recent.push(ok ? 1 : 0); if (pr.recent.length > 50) pr.recent.shift();
+  save();
+}
+function lStop() {
+  L.run = false; L.wait = false; clearTimeout(L.timer); stopPlay();
+  $('lStart').textContent = '▶ Старт';
+}
+function lToggle() {
+  audio();
+  if (L.run) { lStop(); stage('', L.cur || '?', '', 'Пауза. «Старт» — продовжити.'); return; }
+  L.run = true; $('lStart').textContent = '⏸ Пауза'; lNext();
+}
+function lNext() {
+  if (!L.run) return;
+  clearTimeout(L.timer);
+  L.cur = pick(); L.wait = true;
+  stage('', '?', '', 'Слухайте…');
+  play(L.cur);
+}
+function flash(c, cls) {
+  [].forEach.call(document.querySelectorAll('#lPad button'), function (b) { if (b.getAttribute('data-c') === c) b.classList.add(cls); });
+}
+function lAnswer(c) {
+  if (!L.run || !L.wait || !L.cur) return;
+  L.wait = false; clearTimeout(L.timer);
+  var ok = c === L.cur;
+  rec(L.cur, ok); L.n++; if (ok) L.ok++;
+  lRender();
+  if (ok) {
+    flash(c, 'hit');
+    stage('ok', L.cur, pat(codeOf(L.cur)), 'Так!');
+    L.timer = setTimeout(lNext, 450);
+  } else {
+    if (c) flash(c, 'miss');
+    flash(L.cur, 'hit');
+    stage('bad', L.cur, pat(codeOf(L.cur)), c ? 'Це «' + L.cur + '», а не «' + c + '». Слухайте ще раз:' : 'Це «' + L.cur + '». Слухайте:');
+    stopPlay();
+    L.timer = setTimeout(function () { play(L.cur, function () { L.timer = setTimeout(lNext, 900); }); }, 350);
+  }
+}
+function lRepeat() {
+  if (!L.cur) return;
+  audio();
+  if (L.wait) play(L.cur);
+  else if (L.run) play(L.cur, function () { L.timer = setTimeout(lNext, 900); });
+  else play(L.cur);
+}
+function setLevel(n) {
+  var pr = P();
+  n = Math.max(2, Math.min(A().koch.length, n));
+  if (n === pr.level) return;
+  var up = n > pr.level;
+  lStop(); pr.level = n; pr.recent = []; save(); lRender();
+  var c = A().koch[n - 1];
+  if (up) { stage('', c, pat(codeOf(c)), 'Новий символ «' + c + '». Запам’ятайте мелодію, потім «Старт».'); play(c + ' ' + c + ' ' + c); }
+  else stage('', '?', '', 'Урок ' + (n - 1) + '. Натисніть «Старт».');
+}
+$('lStart').addEventListener('click', lToggle);
+$('lRepeat').addEventListener('click', lRepeat);
+$('lIdk').addEventListener('click', function () { if (L.run) lAnswer(''); });
+$('lvlUp').addEventListener('click', function () { audio(); setLevel(P().level + 1); });
+$('lvlDown').addEventListener('click', function () { setLevel(P().level - 1); });
+$('lUpBtn').addEventListener('click', function () { audio(); setLevel(P().level + 1); });
+$('lPad').addEventListener('click', function (e) {
+  var b = e.target.closest('button[data-c]'); if (!b) return;
+  audio();
+  var c = b.getAttribute('data-c');
+  if (L.run) lAnswer(c); else { stage('', c, pat(codeOf(c)), 'Це «' + c + '». «Старт» — почати тренування.'); play(c); }
+});
+
+/* ---------- СЛОВА / ПОЗИВНІ ---------- */
+var W = {item: null, done: true, ok: 0, n: 0};
+function letters(n) { var s = ''; for (var i = 0; i < n; i++) s += String.fromCharCode(65 + rnd(26)); return s; }
+function callsign(pre) {
+  var r = Math.random(), suf = r < 0.12 ? 1 : r < 0.55 ? 2 : 3;
+  return pre + (/\d$/.test(pre) && pre.length > 2 ? '' : String(rnd(10))) + letters(suf);
+}
+function gen(cat) {
+  var s = '', i, n;
+  if (cat === 'uaw') return {t: rp(UAW)};
+  if (cat === 'ua') return {t: callsign(rp(UA_PRE))};
+  if (cat === 'dx') return {t: callsign(rp(DX_PRE))};
+  if (cat === 'q') { var q = rp(QL); return {t: q[0], m: q[1]}; }
+  if (cat === 'en') return {t: rp(EN)};
+  if (cat === 'grp') { var cs = lvlChars(); for (i = 0; i < 5; i++) s += rp(cs); return {t: s}; }
+  for (i = 0, n = 3 + rnd(3); i < n; i++) s += rnd(10);
+  return {t: s};
+}
+function norm(s, cyr) {
+  s = String(s).toUpperCase(); var o = '', m = cyr ? LAT2CYR : CYR2LAT;
+  for (var i = 0; i < s.length; i++) { var c = s.charAt(i); c = m[c] || c; if (c !== ' ') o += c; }
+  return o;
+}
+function wNew() {
+  audio();
+  W.item = gen(S.cat); W.done = false;
+  $('wShow').textContent = '?'; $('wMeaning').textContent = '';
+  $('wHint').textContent = 'Слухайте і вводьте. Enter — перевірити.';
+  $('wIn').value = '';
+  play(W.item.t);
+}
+function wFinish(a) {
+  var t = W.item.t, ok = a === t, html = '';
+  W.done = true; W.n++; if (ok) W.ok++;
+  for (var i = 0; i < t.length; i++) html += '<span class="' + (a !== null && a.charAt(i) === t.charAt(i) ? 'g' : 'r') + '">' + esc(t.charAt(i)) + '</span>';
+  $('wShow').innerHTML = html;
+  $('wHint').innerHTML = a === null ? 'Ось що було. Enter — далі.' : ok ? '<span class="g">Вірно!</span> Enter — далі.' : 'Ви ввели: <b>' + esc(a) + '</b>. Enter — далі.';
+  $('wMeaning').textContent = (W.item.m ? t + ' — ' + W.item.m + '.   ' : '') + patternOf(t);
+  $('wScore').textContent = W.ok + '/' + W.n;
+}
+function wCheck() {
+  if (!W.item || W.done) return wNew();
+  var a = norm($('wIn').value, isCyr(W.item.t));
+  if (!a) { play(W.item.t); return; }
+  wFinish(a);
+}
+$('wCat').addEventListener('change', function () { S.cat = this.value; save(); W.item = null; W.done = true; $('wShow').textContent = '—'; });
+$('wPlay').addEventListener('click', function () { $('wIn').focus(); if (W.item && !W.done) play(W.item.t); else wNew(); });
+$('wRepeat').addEventListener('click', function () { audio(); if (W.item) play(W.item.t); });
+$('wReveal').addEventListener('click', function () { if (W.item && !W.done) wFinish(null); });
+$('wCheck').addEventListener('click', function () { $('wIn').focus(); wCheck(); });
+$('wIn').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') { e.preventDefault(); wCheck(); }
+  else if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); audio(); if (W.item) play(W.item.t); }
+});
+
+/* ---------- ПЕРЕВІР СЕБЕ (передача) ---------- */
+var K = {down: false, downAt: 0, dot: null, dash: null, ditDown: false, dahDown: false, ditMem: false, dahMem: false,
+  busy: false, last: '', cur: '', text: '', t1: null, t2: null, stepT: null, nextT: null, target: '', pos: 0, good: 0, tries: 0};
+function now() { return (window.performance && performance.now) ? performance.now() : Date.now(); }
+function kDit() { return 1.2 / S.set.wpm; }
+function slow() { return $('kSlow').checked; }
+function kRender() {
+  var m = S.set.key;
+  [].forEach.call(document.querySelectorAll('#kMode button'), function (b) { b.classList.toggle('on', b.getAttribute('data-km') === m); });
+  $('kaCompose').classList.toggle('hidden', m !== 'compose');
+  $('kaStraight').classList.toggle('hidden', m !== 'straight');
+  $('kaIambic').classList.toggle('hidden', m !== 'iambic');
+  $('kSlowL').classList.toggle('hidden', m !== 'straight');
+  $('kWpmBox').classList.toggle('hidden', m === 'compose');
+  if (m === 'iambic') $('kWpm').textContent = S.set.wpm + ' WPM';
+  $('kNote').innerHTML = m === 'compose'
+    ? 'Найпростіше: складайте літеру з точок і тире — без поспіху. Помилка видно одразу, і програма покаже й зіграє, як правильно. Клавіші: <b>Z</b>/<b>←</b> — точка, <b>X</b>/<b>→</b> — тире, <b>Backspace</b> — стерти.'
+    : m === 'straight'
+    ? 'Коротко натиснули — точка, довго (утричі довше) — тире. Літера закінчується, коли ви відпустили ключ і чекаєте' + (slow() ? ' 1 секунду («Без поспіху»).' : ' 2–3 точки.') + ' Програма сама підлаштовується під вашу руку.'
+    : 'Тримайте ТОЧКУ — сиплються точки, ТИРЕ — тире, обидві разом — чергуються. Швидкість — у налаштуваннях.';
+  if (!K.target) kGen(); else kRenderTarget();
+  kShow();
+}
+function kShow() { $('kText').textContent = K.text; $('kCur').textContent = K.cur ? pat(K.cur) : ''; $('kScore').textContent = K.good + ' з ' + K.tries; }
+function kPool() {
+  var set = $('kSet').value, i, out = [];
+  if (set === 'lvl') return lvlChars();
+  if (set === 'all') return A().order.split('');
+  if (S.alpha === 'cyr') return UAW.filter(function (w) { return w.length <= 4; });
+  for (i = 0; i < QL.length; i++) if (QL[i][0].length <= 4) out.push(QL[i][0]);
+  return out.concat(EN.filter(function (w) { return w.length <= 4; }));
+}
+function kGen() {
+  clearTimeout(K.nextT);
+  var pool = kPool(), t = '', n = 0;
+  do { t = rp(pool); } while (t === K.target && pool.length > 1 && ++n < 10);
+  K.target = t; K.pos = 0; K.cur = '';
+  kMsg('', ''); kRenderTarget(); kShow();
+}
+function kRenderTarget() {
+  var t = K.target || '', h = '';
+  for (var i = 0; i < t.length; i++) h += '<span class="' + (i < K.pos ? 'd' : i === K.pos ? 'n' : '') + '">' + esc(t.charAt(i)) + '</span>';
+  $('kTarget').innerHTML = h;
+  var cur = t.charAt(K.pos);
+  $('kTargetPat').textContent = cur && $('kHint').checked ? pat(codeOf(cur)) : '';
+}
+function kMsg(cls, s) { $('kRes').className = 'msg ' + cls; $('kRes').innerHTML = s; }
+function addText(ch) { K.text += ch; if (K.text.length > 40) K.text = K.text.slice(-40); }
+/* перевірка однієї переданої літери проти завдання */
+function gotLetter(ch, p) {
+  if (!K.target || K.pos >= K.target.length) return;
+  var want = K.target.charAt(K.pos), wp = codeOf(want);
+  K.tries++;
+  if (p === wp) {
+    K.good++; K.pos++;
+    if (K.pos >= K.target.length) {
+      kMsg('g', '✓ Вірно! Наступне завдання…');
+      K.nextT = setTimeout(function () { addText(' '); kGen(); }, 1100);
+    } else kMsg('g', '✓ «' + esc(want) + '» є! Далі — «' + esc(K.target.charAt(K.pos)) + '»');
+  } else {
+    kMsg('r', '✗ Вийшло ' + pat(p) + (ch ? ' (це «' + esc(ch) + '»)' : '') + ', а треба <b>«' + esc(want) + '» ' + pat(wp) + '</b> — слухайте');
+    setTimeout(function () { play(want); }, 300);
+  }
+  kRenderTarget(); kShow();
+}
+/* режим «• і — кнопками» */
+function cAdd(el) {
+  audio(); beep((el === '.' ? 1 : 3) * Math.max(kDit(), 0.07));
+  K.cur += el; if (K.cur.length > 9) K.cur = K.cur.slice(-9);
+  if (K.target && K.pos < K.target.length) {
+    var wp = codeOf(K.target.charAt(K.pos));
+    if (K.cur === wp || wp.indexOf(K.cur) !== 0) {   // готово або вже помилка — перевіряємо одразу
+      var p = K.cur, ch = rev(p); K.cur = ''; addText(ch || '*'); gotLetter(ch, p); return;
+    }
+  }
+  kShow();
+}
+function cDel() { K.cur = K.cur.slice(0, -1); kShow(); }
+function cOk() {
+  if (!K.cur) return;
+  var p = K.cur, ch = rev(p); K.cur = ''; addText(ch || '*'); gotLetter(ch, p); kShow();
+}
+/* прямий ключ і ямбічний */
+function clearGap() { clearTimeout(K.t1); clearTimeout(K.t2); }
+function armGap(unit, idle) {
+  clearGap();
+  var a = (idle ? 1.3 : 2.2) * unit * 1000, b = (idle ? 4.5 : 5.5) * unit * 1000;
+  if (!idle && slow()) { a = Math.max(a, 1000); b = Math.max(b, 2600); }
+  K.t1 = setTimeout(commitLetter, a);
+  K.t2 = setTimeout(commitWord, b);
+}
+function commitLetter() {
+  if (!K.cur) return;
+  var p = K.cur, ch = rev(p);
+  K.cur = ''; K.last = ''; addText(ch || '*'); kShow();
+  gotLetter(ch, p);
+}
+function commitWord() { commitLetter(); if (K.text && !/ $/.test(K.text)) { addText(' '); kShow(); } }
+function addEl(el) { K.cur += el; if (K.cur.length > 9) K.cur = K.cur.slice(-9); kShow(); }
+function skDown() {
+  if (K.down) return;
+  K.down = true; K.downAt = now(); clearGap(); keyTone(true); $('kStraight').classList.add('down');
+}
+function skUp() {
+  if (!K.down) return;
+  K.down = false; keyTone(false); $('kStraight').classList.remove('down');
+  var d = (now() - K.downAt) / 1000;
+  if (d < 0.012) return;
+  if (K.dot === null) { if (slow()) { K.dot = 0.15; K.dash = 0.45; } else { K.dot = kDit(); K.dash = 3 * kDit(); } }
+  var el = d < (K.dot + K.dash) / 2 ? '.' : '-';
+  if (el === '.') K.dot = 0.75 * K.dot + 0.25 * d; else K.dash = 0.75 * K.dash + 0.25 * d;
+  K.dot = Math.min(Math.max(K.dot, 0.025), 0.5);
+  K.dash = Math.min(Math.max(K.dash, K.dot * 2), K.dot * 5);
+  addEl(el);
+  var unit = (K.dot + K.dash / 3) / 2;
+  $('kWpm').textContent = Math.round(1.2 / unit) + ' WPM';
+  armGap(unit, false);
+}
+function pdlDown(w) {
+  if (w === '.') { if (K.ditDown) return; K.ditDown = true; K.ditMem = true; $('kDit').classList.add('down'); }
+  else { if (K.dahDown) return; K.dahDown = true; K.dahMem = true; $('kDah').classList.add('down'); }
+  clearGap();
+  if (!K.busy) keyerStep();
+}
+function pdlUp(w) {
+  if (w === '.') { K.ditDown = false; $('kDit').classList.remove('down'); }
+  else { K.dahDown = false; $('kDah').classList.remove('down'); }
+}
+function keyerStep() {
+  var dit = kDit(), wd = K.ditDown || K.ditMem, wh = K.dahDown || K.dahMem, el = null;
+  if (wd && wh) el = K.last === '.' ? '-' : '.';
+  else if (wd) el = '.'; else if (wh) el = '-';
+  K.ditMem = false; K.dahMem = false;
+  if (!el) { K.busy = false; armGap(dit, true); return; }
+  K.busy = true; K.last = el;
+  var d = el === '.' ? dit : 3 * dit;
+  beep(d); addEl(el);
+  K.stepT = setTimeout(keyerStep, (d + dit) * 1000);
+}
+function kRelease() {
+  if (K.down) skUp();
+  K.ditDown = K.dahDown = K.ditMem = K.dahMem = false;
+  clearTimeout(K.stepT); K.busy = false;
+  ['kStraight', 'kDit', 'kDah', 'cDit', 'cDah'].forEach(function (id) { $(id).classList.remove('down'); });
+  if (ctx) keyTone(false);
+}
+function bindKey(el, down, up) {
+  var active = false;
+  function d(e) { if (e.cancelable) e.preventDefault(); audio(); if (active) return; active = true; el.classList.add('down'); down(); }
+  function u() { if (!active) return; active = false; el.classList.remove('down'); up(); }
+  if (window.PointerEvent) {
+    el.addEventListener('pointerdown', function (e) { try { el.setPointerCapture(e.pointerId); } catch (x) {} d(e); });
+    el.addEventListener('pointerup', u); el.addEventListener('pointercancel', u); el.addEventListener('lostpointercapture', u);
+  } else {
+    el.addEventListener('touchstart', d); el.addEventListener('touchend', u); el.addEventListener('touchcancel', u);
+    el.addEventListener('mousedown', d); window.addEventListener('mouseup', u);
+  }
+  el.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+}
+function noop() {}
+bindKey($('cDit'), function () { cAdd('.'); }, noop);
+bindKey($('cDah'), function () { cAdd('-'); }, noop);
+bindKey($('kStraight'), skDown, skUp);
+bindKey($('kDit'), function () { pdlDown('.'); }, function () { pdlUp('.'); });
+bindKey($('kDah'), function () { pdlDown('-'); }, function () { pdlUp('-'); });
+$('cDel').addEventListener('click', cDel);
+$('cOk').addEventListener('click', function () { audio(); cOk(); });
+$('kMode').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  kRelease(); K.cur = ''; S.set.key = b.getAttribute('data-km'); save(); kRender();
+});
+$('kSet').addEventListener('change', kGen);
+$('kHint').addEventListener('change', kRenderTarget);
+$('kSlow').addEventListener('change', function () { K.dot = null; kRender(); });
+$('kClear').addEventListener('click', function () { K.text = ''; K.cur = ''; K.good = 0; K.tries = 0; kMsg('', ''); kShow(); });
+$('kNext').addEventListener('click', function () { K.text = ''; kGen(); });
+
+function keyRole(e) {
+  var c = e.code;
+  if (c === 'Space') return 's';
+  if (c === 'KeyZ' || c === 'BracketLeft' || c === 'ArrowLeft' || c === 'ControlLeft' || c === 'NumpadDecimal') return '.';
+  if (c === 'KeyX' || c === 'BracketRight' || c === 'ArrowRight' || c === 'ControlRight' || c === 'Minus' || c === 'NumpadSubtract') return '-';
+  if (c === 'Backspace') return 'del';
+  if (c === 'Enter' || c === 'NumpadEnter') return 'ok';
+  return null;
+}
+function flashKey(id) { var el = $(id); el.classList.add('down'); setTimeout(function () { el.classList.remove('down'); }, 120); }
+function keyChar(e) {
+  var d = /^(?:Digit|Numpad)(\d)$/.exec(e.code || '');
+  if (d) return d[1];
+  if (S.alpha === 'cyr') return UA_KEYS[e.code] || null;
+  var m = /^Key([A-Z])$/.exec(e.code || '');
+  if (m) return m[1];
+  if (e.key && e.key.length === 1 && MORSE[e.key] && !/[A-Za-z0-9]/.test(e.key)) return e.key;
+  if (e.code === 'Slash') return e.shiftKey ? '?' : '/';
+  return {Period: '.', Comma: ',', Equal: '='}[e.code] || null;
+}
+document.addEventListener('keydown', function (e) {
+  var tg = e.target, tag = tg && tg.tagName;
+  if (tag === 'INPUT' && tg.type !== 'range' && tg.type !== 'checkbox' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+  if (e.ctrlKey && !/Control/.test(e.code) || e.altKey || e.metaKey) return;
+  if (S.tab === 'key') {
+    var r = keyRole(e), m = S.set.key; if (!r) return;
+    e.preventDefault(); if (e.repeat) return; audio();
+    if (m === 'compose') {
+      if (r === '.' || r === '-') { flashKey(r === '.' ? 'cDit' : 'cDah'); cAdd(r); }
+      else if (r === 'del') cDel(); else cOk();
+    } else if (m === 'straight') { if (r === 's' || r === '.' || r === '-') skDown(); }
+    else if (r === '.' || r === '-') pdlDown(r);
+    return;
+  }
+  if (S.tab === 'learn') {
+    if (e.code === 'Space') { e.preventDefault(); lRepeat(); return; }
+    if (e.key === 'Enter') { e.preventDefault(); lToggle(); return; }
+    var ch = keyChar(e);
+    if (ch && !e.repeat) {
+      e.preventDefault();
+      if (L.run) lAnswer(ch);
+      else if (codeOf(ch)) { audio(); stage('', ch, pat(codeOf(ch)), 'Це «' + ch + '». Enter — почати тренування.'); play(ch); }
+    }
+  }
+});
+document.addEventListener('keyup', function (e) {
+  if (S.tab !== 'key') return;
+  var r = keyRole(e), m = S.set.key; if (!r) return;
+  e.preventDefault();
+  if (m === 'straight' && (r === 's' || r === '.' || r === '-')) skUp();
+  else if (m === 'iambic' && (r === '.' || r === '-')) pdlUp(r);
+});
+window.addEventListener('blur', kRelease);
+document.addEventListener('visibilitychange', function () { if (document.hidden) stopAll(); });
+
+/* ---------- ТАБЛИЦЯ ---------- */
+function cell(ch, p, note, playAs) {
+  return '<div class="cell" data-p="' + esc(playAs || ch) + '"><b>' + esc(ch) + '</b><span>' + pat(p) + '</span>' + (note ? '<i>' + esc(note) + '</i>' : '') + '</div>';
+}
+function cyrCells() {
+  var h = '';
+  CYR.forEach(function (p) { h += cell(p[0], p[1], p[0] === 'Ї' ? 'варіанти різняться' : ''); });
+  return h;
+}
+function latCells() {
+  var h = '';
+  for (var i = 0; i < 26; i++) { var c = String.fromCharCode(65 + i); h += cell(c, MORSE[c]); }
+  return h;
+}
+function buildTable() {
+  var h = '', i, cyr = S.alpha === 'cyr';
+  $('tH1').textContent = cyr ? 'Українські літери' : 'Латинські літери (міжнародні)';
+  $('tLetters').innerHTML = cyr ? cyrCells() : latCells();
+  $('tH2').textContent = cyr ? 'Латинські літери (для ефіру)' : 'Українські літери (довідково)';
+  $('tOther').innerHTML = cyr ? latCells() : cyrCells();
+  for (i = 0; i < 10; i++) h += cell(String(i), MORSE[i]);
+  $('tDigits').innerHTML = h; h = '';
+  '.,?/=-\'():;"@+!'.split('').forEach(function (c2) { h += cell(c2, MORSE[c2]); });
+  $('tPunct').innerHTML = h; h = '';
+  PRO.forEach(function (p) { h += cell(p[0], p[1], p[2], '<' + p[0] + '>'); });
+  $('tPro').innerHTML = h;
+}
+var lastCell = null;
+$('p-table').addEventListener('click', function (e) {
+  var d = e.target.closest('.cell'); if (!d) return;
+  audio();
+  if (lastCell) lastCell.classList.remove('on');
+  d.classList.add('on'); lastCell = d;
+  play(d.getAttribute('data-p'), function () { d.classList.remove('on'); });
+});
+$('tPlay').addEventListener('click', function () { audio(); var v = $('tIn').value; $('tPat').textContent = patternOf(v); play(v); });
+$('tStop').addEventListener('click', stopPlay);
+$('tIn').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $('tPlay').click(); } });
+
+/* ---------- НАЛАШТУВАННЯ ---------- */
+function sRender() {
+  $('sWpm').value = S.set.wpm; $('sEff').value = S.set.eff; $('sTone').value = S.set.tone; $('sVol').value = S.set.vol;
+  $('sWpmV').textContent = S.set.wpm + ' WPM';
+  $('sEffV').textContent = S.set.eff >= S.set.wpm ? 'як знаки' : S.set.eff + ' WPM';
+  $('sToneV').textContent = S.set.tone + ' Гц';
+  $('sVolV').textContent = S.set.vol + '%';
+}
+[['sWpm', 'wpm'], ['sEff', 'eff'], ['sTone', 'tone'], ['sVol', 'vol']].forEach(function (p) {
+  $(p[0]).addEventListener('input', function () {
+    S.set[p[1]] = parseInt(this.value, 10); K.dot = null; save(); sRender();
+    if (ctx) { out.gain.value = S.set.vol / 100; keyOsc.frequency.value = S.set.tone; }
+  });
+});
+$('sTest').addEventListener('click', function () { audio(); play(S.alpha === 'cyr' ? 'ПРИВІТ' : 'CQ CQ DE UR'); });
+$('sReset').addEventListener('click', function () {
+  if (!window.confirm('Скинути прогрес навчання для цієї абетки? Налаштування залишаться.')) return;
+  S.prog[S.alpha] = freshProg(); save(); L.n = L.ok = 0; lRender();
+});
+
+/* перший дотик «будить» звук (потрібно для iPad/Android) */
+function unlock() { audio(); document.removeEventListener('touchend', unlock); document.removeEventListener('click', unlock); }
+document.addEventListener('touchend', unlock); document.addEventListener('click', unlock);
+
+/* ---------- сайт в інтернеті: офлайн-режим і «Поділитися» ---------- */
+var online = location.protocol === 'https:' || location.hostname === 'localhost';
+if (online && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+if (location.protocol === 'https:') {
+  $('shareBtn').classList.remove('hidden');
+  $('shareBtn').addEventListener('click', function () {
+    var url = location.href.split('#')[0].split('?')[0];
+    if (navigator.share) { navigator.share({title: 'Морзе — тренажер', text: 'Тренажер азбуки Морзе українською', url: url}).catch(function () {}); return; }
+    function done() { $('shareBtn').textContent = '✓ Посилання скопійовано'; setTimeout(function () { $('shareBtn').textContent = '📤 Поділитися'; }, 2500); }
+    if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, function () { window.prompt('Скопіюйте посилання:', url); });
+    else window.prompt('Скопіюйте посилання:', url);
+  });
+}
+
+$('wCat').value = S.cat || 'uaw';
+setAlpha(S.alpha || 'cyr');
+})();
+</script>
+</body>
+</html>
