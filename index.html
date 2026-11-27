@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Морзе">
 <meta name="theme-color" content="#0c1114">
-<meta name="description" content="Тренажер азбуки Морзе українською: українська абетка й латиниця, метод Коха, перевірка передачі, позивні та Q-коди.">
+<meta name="description" content="Тренажер азбуки Морзе українською: українська абетка й латиниця, метод Коха, наспіви (співзвучні слова), перевірка передачі, позивні та Q-коди.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -71,9 +71,20 @@ input,select{font:inherit;font-size:21px;background:#0f171c;color:#e6edf1;border
 .grid{display:flex;flex-wrap:wrap}
 .cell{width:104px;margin:4px;padding:7px 3px;background:#151f26;border:1px solid #26353f;border-radius:10px;text-align:center;cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 .cell b{display:block;font-size:27px;color:#ffb000}
-.cell span{font-size:17px;letter-spacing:1px;color:#9fd8ff}
+.cell>span{font-size:17px;letter-spacing:1px;color:#9fd8ff}
 .cell i{display:block;font-size:11px;color:#9fb0ba;font-style:normal;margin-top:2px}
+.cell em{display:block;font-size:12px;font-style:normal;margin-top:3px;line-height:1.25}
 .cell.on{background:#24411f;border-color:#3ddc84}
+.grid.edit .cell{border-style:dashed;border-color:#ffb000}
+.sl{color:#ffb000;font-weight:700}.sk{color:#9fd8ff}.sp{color:#5d6d78}
+.mn{font-size:26px;min-height:34px;margin-top:2px}
+.mn button{font-size:15px;padding:4px 10px;margin:0 0 0 10px;vertical-align:middle}
+.mnprev{display:flex;flex-wrap:wrap;justify-content:center;margin:8px 0}
+.mnprev .mc{display:flex;flex-direction:column;align-items:center;min-width:46px;margin:3px 4px;padding:4px 8px;border:1px solid #2c3d49;border-radius:8px}
+.mnprev .mc b{font-size:22px;color:#9fd8ff}
+.mnprev .mc span{font-size:20px}
+.mnprev .mc.bad{border-color:#ff5a5a}
+#mnIn{width:100%;margin:6px 0;font-size:24px;text-align:center}
 h3{margin:12px 4px 4px;color:#9fb0ba;font-weight:600;font-size:15px;text-transform:uppercase;letter-spacing:1px}
 .set label{display:flex;align-items:center;flex-wrap:wrap;font-size:19px;margin:12px 0}
 .set label span{width:260px}
@@ -95,13 +106,19 @@ select.sm{font-size:17px;padding:7px 10px}
 .help td:first-child{white-space:nowrap;color:#ffb000;font-weight:600}
 .help kbd{background:#1d2a33;border:1px solid #2c3d49;border-radius:6px;padding:1px 7px;font-family:Consolas,Menlo,monospace;font-size:16px}
 .help a{color:#9fd8ff}
+.kbd{margin-top:6px;-webkit-user-select:none;user-select:none}
+.krow{display:flex;justify-content:center}
+.krow button{flex:1 1 0;max-width:80px;min-width:0;height:58px;padding:0;margin:3px;font-size:24px;font-weight:600}
+.krow button.kw{max-width:260px;flex:3 1 0;font-size:20px}
+.lay{font-size:15px;color:#9fb0ba;margin:0 6px}
+.lay b{color:#ffb000}
 button.donate{border-color:#ffb000;color:#ffb000;background:#1f1a0c}
 .modal{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:10;padding:16px}
 .modal .box{background:#121a1f;border:1px solid #ffb000;border-radius:16px;max-width:520px;padding:18px 22px;text-align:center;font-size:19px;line-height:1.5}
 .modal .box h2{color:#ffb000;margin:4px 0 10px;font-size:26px}
 @media (max-width:760px){
  .big{font-size:80px;min-height:86px}.chip{width:60px;height:58px;font-size:24px}
- .key{height:180px}.key.huge{font-size:80px}.big2{font-size:40px}.ktarget{font-size:48px}.set label span{width:100%}
+ .key{height:180px}.key.huge{font-size:80px}.big2{font-size:40px}.ktarget{font-size:48px}.set label span{width:100%}.mn{font-size:22px}
 }
 </style>
 </head>
@@ -137,6 +154,7 @@ button.donate{border-color:#ffb000;color:#ffb000;background:#1f1a0c}
  <div id="lStage" class="stage">
   <div id="lBig" class="big">?</div>
   <div id="lPat" class="pat"></div>
+  <div id="lMn" class="mn"></div>
   <div id="lMsg" class="msg"></div>
  </div>
  <div class="row center">
@@ -146,6 +164,7 @@ button.donate{border-color:#ffb000;color:#ffb000;background:#1f1a0c}
  </div>
  <div id="lPad" class="pad"></div>
  <p class="note">Тут вчитеся <b>чути</b>: програма грає символ — ви тиснете, який це. Спершу 2 символи, коли точність 90%+ — додається новий. Рамка: зелена ≥90%, жовта ≥70%, червона — треба ще.
+ Після відповіді видно <b>наспів</b> — співзвучні слова (М — «маа-маа»): <span class="sl">довгий склад</span> — тире, <span class="sk">короткий</span> — точка; <b>✎</b> — замінити своїми.
  Клавіатура: символ — відповідь, <b>Пробіл</b> — повтор, <b>Enter</b> — старт/пауза. <span id="lCyrNote"></span></p>
 </section>
 
@@ -171,6 +190,7 @@ button.donate{border-color:#ffb000;color:#ffb000;background:#1f1a0c}
   <div class="msg" style="margin:0">Передайте:</div>
   <div id="kTarget" class="ktarget"></div>
   <div id="kTargetPat" class="hintp"></div>
+  <div id="kTargetMn" class="mn"></div>
   <div id="kRes" class="msg"></div>
   <div class="decoded"><span class="lbl">ви передали:</span><span id="kText"></span><span id="kCur" class="cur"></span></div>
   <div class="stats">Вірно: <b id="kScore">0 з 0</b> <span id="kWpmBox">· темп: <b id="kWpm">—</b></span></div>
@@ -212,21 +232,26 @@ button.donate{border-color:#ffb000;color:#ffb000;background:#1f1a0c}
  <div class="row">
   <input id="wIn" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="що почули">
   <button id="wCheck" class="pri">Перевірити</button>
+  <button id="wKbdBtn" title="Екранна клавіатура">⌨</button>
  </div>
+ <div class="lay" id="wLay"></div>
+ <div id="wKbd" class="kbd hidden"></div>
  <div class="row center">
   <button id="wPlay" class="pri">▶ Грати / Далі</button>
   <button id="wRepeat">🔁 Повтор</button>
   <button id="wReveal">Показати</button>
  </div>
- <p class="note"><b>Enter</b> — перевірити, ще раз <b>Enter</b> — наступне. <b>Пробіл</b> — повтор. Позивні й Q-коди в ефірі завжди латиницею — це міжнародна «мова» радіоаматорів.</p>
+ <p class="note"><b>Enter</b> — перевірити, ще раз <b>Enter</b> — наступне. <b>Пробіл</b> — повтор. <b>Розкладку перемикати не треба</b>: тисніть клавішу, де намальована потрібна літера, — програма сама поставить українську чи латинську. Позивні й Q-коди в ефірі завжди латиницею — це міжнародна «мова» радіоаматорів.</p>
 </section>
 
 <!-- ============ ТАБЛИЦЯ ============ -->
 <section id="p-table" class="page">
  <div class="row">
-  <input id="tIn" autocomplete="off" spellcheck="false" placeholder="Введіть текст і послухайте">
+  <input id="tIn" autocomplete="off" spellcheck="false" placeholder="Введіть текст і послухайте (пишеться абеткою, вибраною вгорі)">
   <button id="tPlay" class="pri">▶</button><button id="tStop">■</button>
+  <button id="tEdit" title="Змінити наспіви — співзвучні слова">✎ Наспіви</button>
  </div>
+ <div id="tEditNote" class="banner hidden">✎ Торкніться символу, щоб вписати свій наспів. Закінчили — ще раз «✎ Наспіви».</div>
  <div id="tPat" class="hintp" style="font-size:24px"></div>
  <h3 id="tH1">Літери</h3><div id="tLetters" class="grid"></div>
  <h3>Цифри</h3><div id="tDigits" class="grid"></div>
@@ -242,7 +267,8 @@ button.donate{border-color:#ffb000;color:#ffb000;background:#1f1a0c}
  <label><span>Загальна швидкість (паузи, Farnsworth)</span><input type="range" id="sEff" min="3" max="40" step="1"><b id="sEffV"></b></label>
  <label><span>Тон</span><input type="range" id="sTone" min="300" max="1000" step="10"><b id="sToneV"></b></label>
  <label><span>Гучність</span><input type="range" id="sVol" min="0" max="100" step="1"><b id="sVolV"></b></label>
- <div class="row"><button id="sTest" class="pri">▶ Перевірити звук</button><button id="sReset">Скинути прогрес цієї абетки</button></div>
+ <label class="chk"><input type="checkbox" id="sMn">Показувати наспіви — співзвучні слова (М — «маа-маа»)</label>
+ <div class="row"><button id="sTest" class="pri">▶ Перевірити звук</button><button id="sReset">Скинути прогрес цієї абетки</button><button id="sMnReset">Повернути стандартні наспіви</button></div>
  <p class="note">Порада: знаки — 20 WPM, загальна — 10–12 WPM. Так кожна літера звучить «цілою мелодією», а час на роздуми дають паузи. Коли легко — піднімайте загальну швидкість.
  Прогрес для української і латиниці окремий. Усе зберігається на цьому пристрої.</p>
 </section>
@@ -280,11 +306,22 @@ button.donate{border-color:#ffb000;color:#ffb000;background:#1f1a0c}
   <tr><td>Вчити</td><td>Вчитися <b>чути</b> літери (метод Коха): спершу 2 літери, нова додається, коли точність 90%+. Частіше дає ті, де помиляєтесь.</td></tr>
   <tr><td>Перевір себе</td><td>Вчитися <b>передавати</b>: кнопками • і — без поспіху, далі прямий ключ (є режим «Без поспіху») і ямбічний ключ.</td></tr>
   <tr><td>Слова й позивні</td><td>Українські слова, групи з вивчених літер, цифри, позивні України й світу, Q-коди з перекладом.</td></tr>
-  <tr><td>Таблиця</td><td>Усі коди; торкніться літери — почуєте. Можна послухати будь-який текст.</td></tr>
-  <tr><td>⚙</td><td>Швидкість знаків, швидкість пауз (Farnsworth), тон, гучність.</td></tr>
+  <tr><td>Таблиця</td><td>Усі коди й наспіви; торкніться літери — почуєте. Можна послухати будь-який текст. <b>✎ Наспіви</b> — вписати свої співзвучні слова.</td></tr>
+  <tr><td>⚙</td><td>Швидкість знаків, швидкість пауз (Farnsworth), тон, гучність, показ наспівів.</td></tr>
  </table>
 
+ <h2>Наспіви — співзвучні слова</h2>
+ <p>Давній радіоаматорський спосіб запам’ятати мелодію літери: до кожної є слова, де <b class="sl">довгий склад</b> — це тире, а <b class="sk">короткий</b> — точка.
+ М — «<span class="sl">маа</span><span class="sp">-</span><span class="sl">маа</span>», А — «<span class="sk">ай</span><span class="sp">-</span><span class="sl">даа</span>», Б — «<span class="sl">баа</span><span class="sp">-</span><span class="sk">ки</span><span class="sp">-</span><span class="sk">те</span><span class="sp">-</span><span class="sk">кут</span>».
+ Наспів видно у «Вчити» після відповіді, у «Перевір себе» з «Підказкою» і в «Таблиці».</p>
+ <ul>
+  <li><b>Свої слова:</b> «Таблиця» → <b>✎ Наспіви</b> → торкніться літери; або <b>✎</b> біля наспіву у «Вчити». Склади пишіть через дефіс — по одному на кожен знак, програма підкаже, якщо не збігається.</li>
+  <li>Наспів спільний для символів з однаковим кодом (А і A, Щ і Q) — так радіоаматори вчили латиницю здавна.</li>
+  <li>Наспіви — підпора на старті. Коли літера впізнається одразу, вимкніть їх у ⚙ і слухайте мелодію цілком.</li>
+ </ul>
+
  <h2>Клавіші на комп’ютері</h2>
+ <p><b>Розкладку перемикати не треба:</b> тисніть клавішу, де намальована потрібна літера, — тренажер сам поставить українську чи латинську. На планшеті й телефоні у «Словах й позивних» є своя екранна клавіатура (кнопка <b>⌨</b>).</p>
  <table>
   <tr><td>Вчити</td><td>літера — відповідь (українські працюють і з англійською розкладкою) · <kbd>Пробіл</kbd> — повтор · <kbd>Enter</kbd> — старт/пауза</td></tr>
   <tr><td>Перевір себе</td><td><kbd>Z</kbd>/<kbd>←</kbd> — точка · <kbd>X</kbd>/<kbd>→</kbd> — тире · <kbd>Backspace</kbd> — стерти · <kbd>Enter</kbd> — готово · прямий ключ — <kbd>Пробіл</kbd></td></tr>
@@ -314,6 +351,17 @@ button.donate{border-color:#ffb000;color:#ffb000;background:#1f1a0c}
   <h2>☕ Підтримати автора</h2>
   <p>Тренажер безкоштовний, без реклами й реєстрації — і таким залишиться.<br>Якщо він вам допоміг, можна підтримати розвиток будь-якою сумою. Дякую! 73!</p>
   <div class="row center"><button id="donateGo" class="pri">Підтримати</button><button id="donateClose">Закрити</button></div>
+ </div>
+</div>
+<div id="mnModal" class="modal hidden">
+ <div class="box">
+  <h2>Наспів для «<span id="mnCh"></span>»</h2>
+  <div id="mnPat" class="hintp"></div>
+  <input id="mnIn" autocomplete="off" spellcheck="false" placeholder="напр. маа-маа">
+  <div id="mnPrev" class="mnprev"></div>
+  <div id="mnStat" class="msg"></div>
+  <p class="note">Один склад на кожен знак, склади — через дефіс. Тире — довгий, протяжний склад («маа», «доо»), точка — короткий («ді», «ки»).<span id="mnShared"></span></p>
+  <div class="row center"><button id="mnPlay">▶ Послухати</button><button id="mnDef">Стандартний</button><button id="mnSave" class="pri">Зберегти</button><button id="mnClose">Скасувати</button></div>
  </div>
 </div>
 <script>
@@ -350,7 +398,22 @@ var LAT2CYR = {}; for (key_ in CYR2LAT) LAT2CYR[CYR2LAT[key_]] = key_;
 /* фізичні клавіші → українська розкладка (працює, навіть якщо ввімкнена англійська) */
 var UA_KEYS = {KeyQ:'Й',KeyW:'Ц',KeyE:'У',KeyR:'К',KeyT:'Е',KeyY:'Н',KeyU:'Г',KeyI:'Ш',KeyO:'Щ',KeyP:'З',BracketLeft:'Х',
  KeyA:'Ф',KeyS:'І',KeyD:'В',KeyF:'А',KeyG:'П',KeyH:'Р',KeyJ:'О',KeyK:'Л',KeyL:'Д',Semicolon:'Ж',Quote:'Є',
- KeyZ:'Я',KeyX:'Ч',KeyC:'С',KeyV:'М',KeyB:'И',KeyN:'Т',KeyM:'Ь',Comma:'Б',Period:'Ю'};
+ KeyZ:'Я',KeyX:'Ч',KeyC:'С',KeyV:'М',KeyB:'И',KeyN:'Т',KeyM:'Ь',Comma:'Б',Period:'Ю',BracketRight:'Ї'};
+/* літера за фізичною клавішею — однаково за будь-якої розкладки (укр/англ/рос) */
+function mapKey(e, alpha) {
+  var c = e.code || '';
+  var d = /^(?:Digit|Numpad)(\d)$/.exec(c);
+  if (d) return e.shiftKey ? null : d[1];
+  if (alpha === 'cyr') return UA_KEYS[c] || null;
+  var m = /^Key([A-Z])$/.exec(c);
+  if (m) return m[1];
+  if (c === 'Slash') return e.shiftKey ? '?' : '/';
+  return {Period: '.', Comma: ',', Equal: '='}[c] || null;
+}
+function insertAt(inp, ch) {
+  if (inp.setRangeText) inp.setRangeText(ch, inp.selectionStart, inp.selectionEnd, 'end');
+  else inp.value += ch;
+}
 
 var QL = [
  ['CQ','загальний виклик — «усім, хто чує»'],['DE','«від» — перед своїм позивним'],['K','прийом, передаю слово'],
@@ -407,7 +470,7 @@ function patternOf(text) { return tokens(text).map(function (t) { return t.c ===
 
 /* ---------- збереження ---------- */
 var LS = 'morse-ua-v1';
-var DEF = {wpm: 20, eff: 12, tone: 600, vol: 60, key: 'compose'};
+var DEF = {wpm: 20, eff: 12, tone: 600, vol: 60, key: 'compose', mn: true};
 function freshProg() { return {level: 2, hist: {}, recent: []}; }
 var S = (function () {
   var s = null;
@@ -419,12 +482,45 @@ var S = (function () {
   }
   if (!s || s.v !== 2) s = {v: 2, set: {}, alpha: 'cyr', tab: 'learn', cat: 'uaw', prog: {lat: freshProg(), cyr: freshProg()}};
   for (var x in DEF) if (s.set[x] === undefined) s.set[x] = DEF[x];
+  if (!s.mn || typeof s.mn !== 'object') s.mn = {};   // власні наспіви: код → «маа-маа»
   return s;
 })();
 function save() { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {} }
 function A() { return ALPHA[S.alpha]; }
 function P() { return S.prog[S.alpha]; }
 function rev(p) { return A().rev[p] || null; }
+
+/* ---------- наспіви (співзвучні слова): довгий склад — тире, короткий — точка ---------- */
+var MN_DEF = {};
+(function () {
+  var d = {'А':'ай-даа','Б':'баа-ки-те-кут','В':'ві-даа-лаа','Г':'гаа-гаа-рін','Д':'доо-мі-ки','Е':'ей',
+   'Є':'є-ди-ноо-рі-жець','Ж':'жи-ве-те-таак','З':'заа-каа-ти-ки','И':'и-не-наа-доо','І':'і-ди','Й':'йош-каа-роо-лаа',
+   'К':'каак-же-таак','Л':'лу-наа-ти-ки','М':'маа-маа','Н':'ноо-мер','О':'оо-коо-лоо','П':'пи-лаа-поо-є','Р':'ре-шаа-є',
+   'С':'сі-ни-ці','Т':'таак','У':'у-нес-лоо','Ф':'фі-лі-моон-чик','Х':'хі-мі-чи-те','Ц':'цаа-плі-наа-ші',
+   'Ч':'чаа-шаа-тоо-не','Ш':'шаа-роо-ваа-рии','Щ':'щуу-каа-ти-хаа','Ь':'тоо-м’я-кий-знаак','Ю':'ю-лі-аа-наа',
+   'Я':'я-маал-я-маал','1':'і-тоо-лькоо-оо-днаа','2':'дві-не-хоо-роо-шоо','3':'три-те-бе-маа-лоо',
+   '4':'че-тве-ри-те-каа','5':'п’ять-і-всі-точ-ки','6':'поо-шес-ти-бе-ри','7':'даай-даай-за-ку-рить',
+   '8':'моо-лоо-коо-ки-пить','9':'ноо-наа-ноо-наа-ми','0':'нооль-оо-коо-лоо-оо'};
+  for (var c in d) MN_DEF[codeOf(c)] = d[c];
+})();
+function mnShow() { return !!S.set.mn; }
+function mnText(p) { return !p ? '' : S.mn.hasOwnProperty(p) ? S.mn[p] : (MN_DEF[p] || ''); }
+function sylls(t) { return String(t || '').split(/[\s\-‐‑–—]+/).filter(function (x) { return x; }); }
+/* склади, розфарбовані під знаки; якщо кількість не збігається — просто текст */
+function mnHtml(p, t) {
+  var s = sylls(t);
+  if (!s.length) return '';
+  if (s.length !== p.length) return esc(s.join('-'));
+  return s.map(function (x, i) { return '<span class="' + (p.charAt(i) === '-' ? 'sl' : 'sk') + '">' + esc(x) + '</span>'; }).join('<span class="sp">-</span>');
+}
+/* усі символи з таким самим кодом — у них спільний наспів */
+function mnSame(p) {
+  var o = [], k;
+  CYR.forEach(function (c) { if (c[1] === p) o.push(c[0]); });
+  for (k in MORSE) if (MORSE[k] === p) o.push(k);
+  PRO.forEach(function (x) { if (x[1] === p) o.push(x[0]); });
+  return o;
+}
 
 /* ---------- звук ---------- */
 var AC = window.AudioContext || window.webkitAudioContext;
@@ -494,6 +590,7 @@ function showTab(t) {
   [].forEach.call(document.querySelectorAll('.page'), function (p) { p.classList.toggle('on', p.id === 'p-' + t); });
   if (t === 'learn') { lRender(); stage('', '?', '', 'Натисніть «Старт», слухайте символ і тисніть його нижче.'); }
   if (t === 'key') kRender();
+  if (t === 'words') wKbdRender();
   if (t === 'set') sRender();
 }
 function setAlpha(a) {
@@ -536,6 +633,15 @@ function pick() {
 function stage(cls, big, p, msg) {
   $('lStage').className = 'stage' + (cls ? ' ' + cls : '');
   $('lBig').textContent = big; $('lPat').textContent = p; $('lMsg').textContent = msg;
+  lMnRender(p ? big : '');
+}
+/* наспів під відкритою літерою (не під «?», щоб не підказувати) */
+function lMnRender(ch) {
+  L.mnCh = ch;
+  var el = $('lMn'), p = ch ? codeOf(ch) : '';
+  if (!p || !mnShow()) { el.innerHTML = ''; return; }
+  var h = mnHtml(p, mnText(p));
+  el.innerHTML = (h ? '«' + h + '»' : '') + '<button data-ch="' + esc(ch) + '" title="Змінити наспів">✎' + (h ? '' : ' додати наспів') + '</button>';
 }
 function lRender() {
   var pr = P(), koch = A().koch;
@@ -555,7 +661,7 @@ function lRender() {
   var can = pr.level < koch.length && pr.recent.length >= 30 && avg(pr.recent) >= 0.9;
   $('lUp').classList.toggle('hidden', !can);
   if (can) $('lNext').textContent = koch[pr.level] + '  ' + pat(codeOf(koch[pr.level]));
-  $('lCyrNote').textContent = S.alpha === 'cyr' ? 'Українські літери можна вводити з будь-якою розкладкою — працюють клавіші, де вони намальовані.' : '';
+  $('lCyrNote').textContent = 'Розкладку перемикати не треба — працюють клавіші, де намальовані потрібні літери.';
 }
 function rec(c, ok) {
   var pr = P(), h = pr.hist[c] || []; h.push(ok ? 1 : 0); if (h.length > 20) h.shift(); pr.hist[c] = h;
@@ -628,6 +734,11 @@ $('lPad').addEventListener('click', function (e) {
   var c = b.getAttribute('data-c');
   if (L.run) lAnswer(c); else { stage('', c, pat(codeOf(c)), 'Це «' + c + '». «Старт» — почати тренування.'); play(c); }
 });
+$('lMn').addEventListener('click', function (e) {
+  var b = e.target.closest('button[data-ch]'); if (!b) return;
+  if (L.run) lStop();                     /* поки редагуєте — тренування на паузі */
+  mnOpen(b.getAttribute('data-ch'));
+});
 
 /* ---------- СЛОВА / ПОЗИВНІ ---------- */
 var W = {item: null, done: true, ok: 0, n: 0};
@@ -658,8 +769,42 @@ function wNew() {
   $('wShow').textContent = '?'; $('wMeaning').textContent = '';
   $('wHint').textContent = 'Слухайте і вводьте. Enter — перевірити.';
   $('wIn').value = '';
+  wKbdRender();
   play(W.item.t);
 }
+/* якою абеткою зараз треба писати відповідь */
+function wAlpha() {
+  if (W.item) return isCyr(W.item.t) ? 'cyr' : 'lat';
+  return S.cat === 'uaw' || (S.cat === 'grp' && S.alpha === 'cyr') ? 'cyr' : 'lat';
+}
+var COARSE = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+function kbdOn() { return S.kbd === undefined ? COARSE : S.kbd; }
+function kbKey(c) { return '<button data-k="' + esc(c) + '">' + esc(c) + '</button>'; }
+function wKbdRender() {
+  var a = wAlpha();
+  $('wLay').innerHTML = '⌨ пишеться: <b>' + (a === 'cyr' ? 'українською' : 'латиницею') + '</b> — розкладку перемикати не треба';
+  var on = kbdOn();
+  $('wKbd').classList.toggle('hidden', !on);
+  $('wKbdBtn').classList.toggle('on', on);
+  /* на сенсорному екрані з нашою клавіатурою системна не вискакує */
+  if (on && COARSE) $('wIn').setAttribute('inputmode', 'none'); else $('wIn').removeAttribute('inputmode');
+  if (!on) return;
+  var rows = a === 'cyr' ? ['ЙЦУКЕНГШЩЗХЇ', 'ФІВАПРОЛДЖЄ', 'ЯЧСМИТЬБЮ'] : ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM.,?/='];
+  var h = '<div class="krow">' + '1234567890'.split('').map(kbKey).join('') + '</div>';
+  rows.forEach(function (r) { h += '<div class="krow">' + r.split('').map(kbKey).join('') + '</div>'; });
+  h += '<div class="krow"><button data-k="del" class="kw">⌫ Стерти</button><button data-k="rep" class="kw">🔁 Повтор</button><button data-k="ok" class="kw pri">✓ Перевірити</button></div>';
+  $('wKbd').innerHTML = h;
+}
+$('wKbd').addEventListener('click', function (e) {
+  var b = e.target.closest('button[data-k]'); if (!b) return;
+  audio();
+  var k = b.getAttribute('data-k'), inp = $('wIn');
+  if (k === 'del') inp.value = inp.value.slice(0, -1);
+  else if (k === 'ok') wCheck();
+  else if (k === 'rep') { if (W.item) play(W.item.t); }
+  else { if (W.done && W.item) return; inp.value += k; }
+});
+$('wKbdBtn').addEventListener('click', function () { S.kbd = !kbdOn(); save(); wKbdRender(); });
 function wFinish(a) {
   var t = W.item.t, ok = a === t, html = '';
   W.done = true; W.n++; if (ok) W.ok++;
@@ -675,14 +820,17 @@ function wCheck() {
   if (!a) { play(W.item.t); return; }
   wFinish(a);
 }
-$('wCat').addEventListener('change', function () { S.cat = this.value; save(); W.item = null; W.done = true; $('wShow').textContent = '—'; });
+$('wCat').addEventListener('change', function () { S.cat = this.value; save(); W.item = null; W.done = true; $('wShow').textContent = '—'; wKbdRender(); });
 $('wPlay').addEventListener('click', function () { $('wIn').focus(); if (W.item && !W.done) play(W.item.t); else wNew(); });
 $('wRepeat').addEventListener('click', function () { audio(); if (W.item) play(W.item.t); });
 $('wReveal').addEventListener('click', function () { if (W.item && !W.done) wFinish(null); });
 $('wCheck').addEventListener('click', function () { $('wIn').focus(); wCheck(); });
 $('wIn').addEventListener('keydown', function (e) {
-  if (e.key === 'Enter') { e.preventDefault(); wCheck(); }
-  else if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); audio(); if (W.item) play(W.item.t); }
+  if (e.key === 'Enter') { e.preventDefault(); wCheck(); return; }
+  if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); audio(); if (W.item) play(W.item.t); return; }
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  var ch = mapKey(e, wAlpha());          /* фізична клавіша → потрібна літера, хоч яка розкладка */
+  if (ch) { e.preventDefault(); insertAt(this, ch); }
 });
 
 /* ---------- ПЕРЕВІР СЕБЕ (передача) ---------- */
@@ -728,8 +876,9 @@ function kRenderTarget() {
   var t = K.target || '', h = '';
   for (var i = 0; i < t.length; i++) h += '<span class="' + (i < K.pos ? 'd' : i === K.pos ? 'n' : '') + '">' + esc(t.charAt(i)) + '</span>';
   $('kTarget').innerHTML = h;
-  var cur = t.charAt(K.pos);
-  $('kTargetPat').textContent = cur && $('kHint').checked ? pat(codeOf(cur)) : '';
+  var cur = t.charAt(K.pos), hint = !!cur && $('kHint').checked, cp = codeOf(cur);
+  $('kTargetPat').textContent = hint ? pat(cp) : '';
+  $('kTargetMn').innerHTML = hint && mnShow() ? mnHtml(cp, mnText(cp)) : '';
 }
 function kMsg(cls, s) { $('kRes').className = 'msg ' + cls; $('kRes').innerHTML = s; }
 function addText(ch) { K.text += ch; if (K.text.length > 40) K.text = K.text.slice(-40); }
@@ -745,7 +894,8 @@ function gotLetter(ch, p) {
       K.nextT = setTimeout(function () { addText(' '); kGen(); }, 1100);
     } else kMsg('g', '✓ «' + esc(want) + '» є! Далі — «' + esc(K.target.charAt(K.pos)) + '»');
   } else {
-    kMsg('r', '✗ Вийшло ' + pat(p) + (ch ? ' (це «' + esc(ch) + '»)' : '') + ', а треба <b>«' + esc(want) + '» ' + pat(wp) + '</b> — слухайте');
+    var wm = mnShow() ? mnHtml(wp, mnText(wp)) : '';
+    kMsg('r', '✗ Вийшло ' + pat(p) + (ch ? ' (це «' + esc(ch) + '»)' : '') + ', а треба <b>«' + esc(want) + '» ' + pat(wp) + '</b>' + (wm ? ' («' + wm + '»)' : '') + ' — слухайте');
     setTimeout(function () { play(want); }, 300);
   }
   kRenderTarget(); kShow();
@@ -883,6 +1033,7 @@ function keyChar(e) {
   return {Period: '.', Comma: ',', Equal: '='}[e.code] || null;
 }
 document.addEventListener('keydown', function (e) {
+  if (!$('mnModal').classList.contains('hidden')) { if (e.key === 'Escape') { e.preventDefault(); mnClose(); } return; }
   var tg = e.target, tag = tg && tg.tagName;
   if (tag === 'INPUT' && tg.type !== 'range' && tg.type !== 'checkbox' || tag === 'SELECT' || tag === 'TEXTAREA') return;
   if (e.ctrlKey && !/Control/.test(e.code) || e.altKey || e.metaKey) return;
@@ -918,8 +1069,11 @@ window.addEventListener('blur', kRelease);
 document.addEventListener('visibilitychange', function () { if (document.hidden) stopAll(); });
 
 /* ---------- ТАБЛИЦЯ ---------- */
+var T = {edit: false};
 function cell(ch, p, note, playAs) {
-  return '<div class="cell" data-p="' + esc(playAs || ch) + '"><b>' + esc(ch) + '</b><span>' + pat(p) + '</span>' + (note ? '<i>' + esc(note) + '</i>' : '') + '</div>';
+  var m = mnShow() || T.edit ? mnHtml(p, mnText(p)) : '';
+  return '<div class="cell" data-c="' + esc(ch) + '" data-k="' + p + '" data-p="' + esc(playAs || ch) + '"><b>' + esc(ch) + '</b><span>' + pat(p) + '</span>' +
+    (m ? '<em>' + m + '</em>' : '') + (note ? '<i>' + esc(note) + '</i>' : '') + '</div>';
 }
 function cyrCells() {
   var h = '';
@@ -943,18 +1097,75 @@ function buildTable() {
   $('tPunct').innerHTML = h; h = '';
   PRO.forEach(function (p) { h += cell(p[0], p[1], p[2], '<' + p[0] + '>'); });
   $('tPro').innerHTML = h;
+  [].forEach.call(document.querySelectorAll('#p-table .grid'), function (g) { g.classList.toggle('edit', T.edit); });
 }
 var lastCell = null;
 $('p-table').addEventListener('click', function (e) {
   var d = e.target.closest('.cell'); if (!d) return;
   audio();
+  if (T.edit) { mnOpen(d.getAttribute('data-c'), d.getAttribute('data-k')); return; }
   if (lastCell) lastCell.classList.remove('on');
   d.classList.add('on'); lastCell = d;
   play(d.getAttribute('data-p'), function () { d.classList.remove('on'); });
 });
 $('tPlay').addEventListener('click', function () { audio(); var v = $('tIn').value; $('tPat').textContent = patternOf(v); play(v); });
 $('tStop').addEventListener('click', stopPlay);
-$('tIn').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $('tPlay').click(); } });
+$('tIn').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') { e.preventDefault(); $('tPlay').click(); return; }
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  var ch = mapKey(e, S.alpha);           /* пишеться абеткою, вибраною вгорі */
+  if (ch) { e.preventDefault(); insertAt(this, ch); }
+});
+$('tEdit').addEventListener('click', function () {
+  T.edit = !T.edit;
+  this.classList.toggle('on', T.edit);
+  $('tEditNote').classList.toggle('hidden', !T.edit);
+  buildTable();
+});
+
+/* ---------- редактор наспіву ---------- */
+var MN = {ch: '', p: ''};
+function mnOpen(ch, p) {
+  p = p || codeOf(ch); if (!p) return;
+  MN.ch = ch; MN.p = p;
+  $('mnCh').textContent = ch; $('mnPat').textContent = pat(p);
+  $('mnIn').value = mnText(p);
+  var same = mnSame(p).filter(function (c) { return c !== ch; });
+  $('mnShared').textContent = same.length ? ' Такий самий код і спільний наспів: ' + same.join(', ') + '.' : '';
+  $('mnDef').classList.toggle('hidden', !MN_DEF[p]);
+  mnPreview();
+  $('mnModal').classList.remove('hidden');
+  setTimeout(function () { var i = $('mnIn'); i.focus(); try { i.setSelectionRange(i.value.length, i.value.length); } catch (x) {} }, 60);
+}
+function mnClose() { $('mnModal').classList.add('hidden'); $('mnIn').blur(); }
+function mnPreview() {
+  var p = MN.p, s = sylls($('mnIn').value), h = '', n = Math.max(p.length, s.length), i, st = $('mnStat');
+  for (i = 0; i < n; i++) {
+    var el = p.charAt(i), x = s[i];
+    h += '<div class="mc' + (el && x ? '' : ' bad') + '"><b>' + (el ? (el === '.' ? '•' : '—') : '+') + '</b>' +
+      '<span class="' + (el === '-' ? 'sl' : 'sk') + '">' + (x ? esc(x) : '?') + '</span></div>';
+  }
+  $('mnPrev').innerHTML = s.length ? h : '';
+  if (!s.length) { st.className = 'msg'; st.textContent = 'Порожньо — для цього символу наспіву не буде.'; }
+  else if (s.length === p.length) { st.className = 'msg g'; st.textContent = '✓ На кожен знак — свій склад.'; }
+  else { st.className = 'msg r'; st.textContent = 'Складів ' + s.length + ', а знаків ' + p.length + ' — треба по одному складу на знак, через дефіс: «маа-маа».'; }
+}
+function mnRefresh() { buildTable(); lMnRender(L.mnCh); kRenderTarget(); }
+function mnSave() {
+  var v = sylls($('mnIn').value).join('-');
+  if (v === (MN_DEF[MN.p] || '')) delete S.mn[MN.p]; else S.mn[MN.p] = v;
+  save(); mnClose(); mnRefresh();
+}
+$('mnIn').addEventListener('input', mnPreview);
+$('mnIn').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') { e.preventDefault(); mnSave(); }
+  else if (e.key === 'Escape') { e.preventDefault(); mnClose(); }
+});
+$('mnSave').addEventListener('click', mnSave);
+$('mnClose').addEventListener('click', mnClose);
+$('mnDef').addEventListener('click', function () { $('mnIn').value = MN_DEF[MN.p] || ''; mnPreview(); $('mnIn').focus(); });
+$('mnPlay').addEventListener('click', function () { audio(); play(PROMAP[MN.ch] ? '<' + MN.ch + '>' : MN.ch); });
+$('mnModal').addEventListener('click', function (e) { if (e.target === this) mnClose(); });
 
 /* ---------- НАЛАШТУВАННЯ ---------- */
 function sRender() {
@@ -963,7 +1174,15 @@ function sRender() {
   $('sEffV').textContent = S.set.eff >= S.set.wpm ? 'як знаки' : S.set.eff + ' WPM';
   $('sToneV').textContent = S.set.tone + ' Гц';
   $('sVolV').textContent = S.set.vol + '%';
+  $('sMn').checked = mnShow();
 }
+$('sMn').addEventListener('change', function () { S.set.mn = this.checked; save(); buildTable(); });
+$('sMnReset').addEventListener('click', function () {
+  var n = Object.keys(S.mn).length;
+  if (!n) { window.alert('Ви ще не міняли наспіви — усі стандартні.'); return; }
+  if (!window.confirm('Повернути стандартні наспіви? Ваші власні слова (' + n + ') буде видалено.')) return;
+  S.mn = {}; save(); buildTable();
+});
 [['sWpm', 'wpm'], ['sEff', 'eff'], ['sTone', 'tone'], ['sVol', 'vol']].forEach(function (p) {
   $(p[0]).addEventListener('input', function () {
     S.set[p[1]] = parseInt(this.value, 10); K.dot = null; save(); sRender();
