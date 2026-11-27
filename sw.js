@@ -16,7 +16,8 @@ self.addEventListener('activate', function (e) {
 self.addEventListener('fetch', function (e) {
   var req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
-  e.respondWith(fetch(req).then(function (res) {
+  /* cache: 'no-cache' — щоразу питає сервер, чи є новіша версія (швидка перевірка), тож оновлення приходять одразу */
+  e.respondWith(fetch(new Request(req.url, {cache: 'no-cache', credentials: 'same-origin'})).then(function (res) {
     if (res && res.ok) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(req, copy); }); }
     return res;
   }).catch(function () {
