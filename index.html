@@ -83,6 +83,18 @@ h3{margin:12px 4px 4px;color:#9fb0ba;font-weight:600;font-size:15px;text-transfo
 .chk{font-size:18px;margin:4px 8px;display:flex;align-items:center}
 .chk input{width:22px;height:22px;margin-right:6px}
 select.sm{font-size:17px;padding:7px 10px}
+.help{font-size:18px;line-height:1.5}
+.help h2{color:#ffb000;font-size:24px;margin:18px 4px 8px}
+.help .cards{display:flex;flex-wrap:wrap}
+.help .card{flex:1 1 250px;background:#10181d;border:1px solid #22303a;border-radius:14px;padding:10px 16px;margin:5px}
+.help .card h3{color:#e6edf1;text-transform:none;letter-spacing:0;font-size:19px;margin:6px 0}
+.help ol,.help ul{margin:6px 0;padding-left:26px}
+.help li{margin:4px 0}
+.help table{border-collapse:collapse;margin:4px 0;width:100%}
+.help td{border:1px solid #22303a;padding:7px 10px;vertical-align:top}
+.help td:first-child{white-space:nowrap;color:#ffb000;font-weight:600}
+.help kbd{background:#1d2a33;border:1px solid #2c3d49;border-radius:6px;padding:1px 7px;font-family:Consolas,Menlo,monospace;font-size:16px}
+.help a{color:#9fd8ff}
 @media (max-width:760px){
  .big{font-size:80px;min-height:86px}.chip{width:60px;height:58px;font-size:24px}
  .key{height:180px}.key.huge{font-size:80px}.big2{font-size:40px}.ktarget{font-size:48px}.set label span{width:100%}
@@ -101,6 +113,7 @@ select.sm{font-size:17px;padding:7px 10px}
   <button data-tab="words">Слова й позивні</button>
   <button data-tab="table">Таблиця</button>
   <button data-tab="set">⚙</button>
+  <button data-tab="help">❓ Довідка</button>
   <button id="shareBtn" class="hidden" title="Поділитися посиланням">📤 Поділитися</button>
  </nav>
 </header>
@@ -227,6 +240,62 @@ select.sm{font-size:17px;padding:7px 10px}
  <div class="row"><button id="sTest" class="pri">▶ Перевірити звук</button><button id="sReset">Скинути прогрес цієї абетки</button></div>
  <p class="note">Порада: знаки — 20 WPM, загальна — 10–12 WPM. Так кожна літера звучить «цілою мелодією», а час на роздуми дають паузи. Коли легко — піднімайте загальну швидкість.
  Прогрес для української і латиниці окремий. Усе зберігається на цьому пристрої.</p>
+</section>
+
+<!-- ============ ДОВІДКА ============ -->
+<section id="p-help" class="page help">
+ <h2>Як поставити на пристрій</h2>
+ <div class="cards">
+  <div class="card"><h3>📱 Android</h3><ol>
+   <li>Відкрийте <b>agryx.github.io/morse</b> у Chrome.</li>
+   <li>Меню <b>⋮</b> → <b>«Додати на головний екран»</b> або <b>«Встановити застосунок»</b>.</li>
+   <li>На екрані з’явиться іконка «Морзе».</li></ol></div>
+  <div class="card"><h3>🍏 iPhone / iPad</h3><ol>
+   <li>Відкрийте сайт у <b>Safari</b>.</li>
+   <li><b>«Поділитися»</b> (квадрат зі стрілкою) → <b>«На початковий екран»</b> → <b>«Додати»</b>.</li>
+   <li>Немає звуку — вимкніть беззвучний режим.</li></ol></div>
+  <div class="card"><h3>💻 Комп’ютер</h3><ol>
+   <li>Chrome або Edge: значок <b>«Встановити»</b> праворуч у рядку адреси — «Морзе» з’явиться на робочому столі.</li>
+   <li>Або просто додайте сайт у закладки.</li></ol></div>
+  <div class="card"><h3>📦 Без інтернету</h3>
+   <p>Після першого відкриття тренажер працює й без мережі. Можна також скачати файлом: <a href="https://github.com/Agryx/morse" target="_blank" rel="noopener">github.com/Agryx/morse</a> → <b>Code</b> → <b>Download ZIP</b> → розпакувати → відкрити <b>index.html</b>. Так його можна передати й на флешці.</p></div>
+ </div>
+
+ <h2>Швидкий старт</h2>
+ <ol>
+  <li>Угорі виберіть абетку: <b>Українська</b> чи <b>Латиниця</b> (в ефірі радіоаматори працюють латиницею).</li>
+  <li><b>Вчити</b> → <b>▶ Старт</b>. Слухайте літеру й тисніть її кнопку внизу.</li>
+  <li>З’явилося «90%+ — час додати новий символ» — натисніть <b>«Додати»</b>.</li>
+  <li><b>Перевір себе</b>: складайте показану літеру з <b>•</b> і <b>—</b>. Запам’ятали — вимкніть «Підказку».</li>
+  <li>Впевнено знаєте літери — переходьте на <b>«Слова й позивні»</b> і з кнопок на <b>ключ</b>.</li>
+ </ol>
+
+ <h2>Що де</h2>
+ <table>
+  <tr><td>Вчити</td><td>Вчитися <b>чути</b> літери (метод Коха): спершу 2 літери, нова додається, коли точність 90%+. Частіше дає ті, де помиляєтесь.</td></tr>
+  <tr><td>Перевір себе</td><td>Вчитися <b>передавати</b>: кнопками • і — без поспіху, далі прямий ключ (є режим «Без поспіху») і ямбічний ключ.</td></tr>
+  <tr><td>Слова й позивні</td><td>Українські слова, групи з вивчених літер, цифри, позивні України й світу, Q-коди з перекладом.</td></tr>
+  <tr><td>Таблиця</td><td>Усі коди; торкніться літери — почуєте. Можна послухати будь-який текст.</td></tr>
+  <tr><td>⚙</td><td>Швидкість знаків, швидкість пауз (Farnsworth), тон, гучність.</td></tr>
+ </table>
+
+ <h2>Клавіші на комп’ютері</h2>
+ <table>
+  <tr><td>Вчити</td><td>літера — відповідь (українські працюють і з англійською розкладкою) · <kbd>Пробіл</kbd> — повтор · <kbd>Enter</kbd> — старт/пауза</td></tr>
+  <tr><td>Перевір себе</td><td><kbd>Z</kbd>/<kbd>←</kbd> — точка · <kbd>X</kbd>/<kbd>→</kbd> — тире · <kbd>Backspace</kbd> — стерти · <kbd>Enter</kbd> — готово · прямий ключ — <kbd>Пробіл</kbd></td></tr>
+  <tr><td>Слова й позивні</td><td><kbd>Enter</kbd> — перевірити, ще раз — далі · <kbd>Пробіл</kbd> — повтор</td></tr>
+ </table>
+
+ <h2>Поради</h2>
+ <ul>
+  <li><b>Не рахуйте точки — запам’ятовуйте мелодію.</b> «А» — це «ді-да», а не «точка-тире».</li>
+  <li>Швидкість знаків <b>20 WPM</b>, загальна <b>10–12</b>: літера звучить цілою, а думати дають паузи.</li>
+  <li><b>10–15 хвилин щодня</b> дають більше, ніж година раз на тиждень.</li>
+ </ul>
+
+ <h2>Приватність</h2>
+ <p>Тренажер нічого не збирає й нікуди не надсилає: без реєстрації, реклами й трекерів. Прогрес зберігається лише на вашому пристрої.</p>
+ <p class="note">Для Ї та Ґ немає єдиного коду (Ї частіше передають як • — — — • або як І), тому в тренуваннях їх немає. 73! 📻</p>
 </section>
 
 </main>
@@ -909,7 +978,9 @@ if (location.protocol === 'https:') {
 }
 
 $('wCat').value = S.cat || 'uaw';
+if (location.hash === '#help') S.tab = 'help';     /* посилання agryx.github.io/morse/#help відкриває довідку */
 setAlpha(S.alpha || 'cyr');
+window.addEventListener('hashchange', function () { if (location.hash === '#help') showTab('help'); });
 })();
 </script>
 </body>
