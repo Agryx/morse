@@ -95,6 +95,10 @@ select.sm{font-size:17px;padding:7px 10px}
 .help td:first-child{white-space:nowrap;color:#ffb000;font-weight:600}
 .help kbd{background:#1d2a33;border:1px solid #2c3d49;border-radius:6px;padding:1px 7px;font-family:Consolas,Menlo,monospace;font-size:16px}
 .help a{color:#9fd8ff}
+button.donate{border-color:#ffb000;color:#ffb000;background:#1f1a0c}
+.modal{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:10;padding:16px}
+.modal .box{background:#121a1f;border:1px solid #ffb000;border-radius:16px;max-width:520px;padding:18px 22px;text-align:center;font-size:19px;line-height:1.5}
+.modal .box h2{color:#ffb000;margin:4px 0 10px;font-size:26px}
 @media (max-width:760px){
  .big{font-size:80px;min-height:86px}.chip{width:60px;height:58px;font-size:24px}
  .key{height:180px}.key.huge{font-size:80px}.big2{font-size:40px}.ktarget{font-size:48px}.set label span{width:100%}
@@ -115,6 +119,7 @@ select.sm{font-size:17px;padding:7px 10px}
   <button data-tab="set">⚙</button>
   <button data-tab="help">❓ Довідка</button>
   <button id="shareBtn" class="hidden" title="Поділитися посиланням">📤 Поділитися</button>
+  <button id="donateBtn" class="hidden donate" title="Підтримати автора">☕ Підтримати</button>
  </nav>
 </header>
 <main>
@@ -295,10 +300,22 @@ select.sm{font-size:17px;padding:7px 10px}
 
  <h2>Приватність</h2>
  <p>Тренажер нічого не збирає й нікуди не надсилає: без реєстрації, реклами й трекерів. Прогрес зберігається лише на вашому пристрої.</p>
+ <div id="helpDonate" class="hidden">
+  <h2>Підтримати автора</h2>
+  <p>Тренажер безкоштовний і без реклами — і таким залишиться. Якщо він вам допоміг, можна підтримати розвиток: нові режими, імітацію QSO, підготовку до іспиту.</p>
+  <button class="donate donateOpen">☕ Підтримати автора</button>
+ </div>
  <p class="note">Для Ї та Ґ немає єдиного коду (Ї частіше передають як • — — — • або як І), тому в тренуваннях їх немає. 73! 📻</p>
 </section>
 
 </main>
+<div id="donateModal" class="modal hidden">
+ <div class="box">
+  <h2>☕ Підтримати автора</h2>
+  <p>Тренажер безкоштовний, без реклами й реєстрації — і таким залишиться.<br>Якщо він вам допоміг, можна підтримати розвиток будь-якою сумою. Дякую! 73!</p>
+  <div class="row center"><button id="donateGo" class="pri">Підтримати</button><button id="donateClose">Закрити</button></div>
+ </div>
+</div>
 <script>
 (function () {
 'use strict';
@@ -975,6 +992,19 @@ if (location.protocol === 'https:') {
     if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, function () { window.prompt('Скопіюйте посилання:', url); });
     else window.prompt('Скопіюйте посилання:', url);
   });
+}
+
+/* ---------- підтримати автора ---------- */
+var DONATE_URL = 'https://send.monobank.ua/jar/3DAv1pbWww';   /* банка monobank; порожнє — кнопок не видно */
+if (DONATE_URL) {
+  $('donateBtn').classList.remove('hidden'); $('helpDonate').classList.remove('hidden');
+  if (/monobank\.ua/.test(DONATE_URL)) $('donateGo').textContent = 'Підтримати через monobank';
+  var openDonate = function () { $('donateModal').classList.remove('hidden'); };
+  $('donateBtn').addEventListener('click', openDonate);
+  [].forEach.call(document.querySelectorAll('.donateOpen'), function (b) { b.addEventListener('click', openDonate); });
+  $('donateGo').addEventListener('click', function () { window.open(DONATE_URL, '_blank', 'noopener'); $('donateModal').classList.add('hidden'); });
+  $('donateClose').addEventListener('click', function () { $('donateModal').classList.add('hidden'); });
+  $('donateModal').addEventListener('click', function (e) { if (e.target === this) this.classList.add('hidden'); });
 }
 
 $('wCat').value = S.cat || 'uaw';
